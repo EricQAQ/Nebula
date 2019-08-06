@@ -10,16 +10,16 @@ type Worker struct {
 	exchange         string
 	ctx              context.Context
 	workerCh         chan ParsedData
-	callbackHandlers CallbackHandler
+	msgHandler ExchangeAPI
 }
 
 func NewWorker(ctx context.Context, exchange string,
-	callbackHandlers CallbackHandler) *Worker {
+	msgHandler ExchangeAPI) *Worker {
 	w := new(Worker)
 	w.ctx = ctx
 	w.exchange = exchange
 	w.workerCh = make(chan ParsedData, 1024)
-	w.callbackHandlers = callbackHandlers
+	w.msgHandler = msgHandler
 	return w
 }
 
@@ -30,18 +30,10 @@ func (w *Worker) StartWorker(app *TraedApp) {
 		case <-w.ctx.Done():
 			return
 		case data := <-w.workerCh:
-			switch data.Dtype {
-			case WelcomeType:
-				w.callbackHandlers.HandleWelcomeMsg(data)
-			case SubscribeType:
-				w.callbackHandlers.HandleSubscribeMsg(data)
-			case AuthType:
-				w.callbackHandlers.HandleAuthMsg(data)
-			case StatusType:
-				w.callbackHandlers.HandleStatusMsg(data)
-			case RetType:
-				w.callbackHandlers.HandleRetMsg(app, data)
+			if data.Type != Message || data.Type != ErrorMsg {
+				continue
 			}
+			w.msgHandler(data)
 		}
 	}
 }

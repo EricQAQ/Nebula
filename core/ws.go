@@ -110,7 +110,7 @@ func (ws *WsClient) ReadMsg() error {
 					return err
 				}
 			}
-			data, err := ws.exchange.GetCallbackHandler().Parse(mtype, msg)
+			data, err := ws.exchange.Parse(msg)
 			if err != nil {
 				log.Errorf("[Traed WsClient(%s)] parse data error: %s", ws.exchangeName, err.Error())
 				continue
@@ -151,4 +151,3 @@ func (ws *WsClient) StopClient() {
 	ws.worker.StopWorker()
 	log.Infof("[Traed WsClient(%s)] stop.", ws.exchangeName)
 }
-

@@ -70,7 +70,7 @@ func (app *TraedApp) SetExchange(exchangeName string, exchange ExchangeAPI) erro
 func (app *TraedApp) CreateWsClient() error {
 	for name, exchange := range app.Exchange {
 		exCfg := app.Cfg.ExchangeMap[name]
-		worker := NewWorker(shutdownCtx, name, exchange.GetCallbackHandler())
+		worker := NewWorker(shutdownCtx, name, exchange)
 		ws, err := NewWsClient(
 			shutdownCtx, name, exCfg.Address,
 			exchange, app.Cfg.Websocket, worker)
