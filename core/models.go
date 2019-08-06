@@ -1,5 +1,9 @@
 package core
 
+import (
+	"time"
+)
+
 const (
 	OrdLimit        = "Limit"
 	OrdMarket       = "Market"
@@ -33,10 +37,21 @@ type Trade struct {
 	Timestamp time.Time
 }
 
+type Quote struct {
+}
+
 type Account struct {
 }
 
-type Ticker struct {
+type Tick struct {
+	Symbol    string
+	Last      float64
+	Buy       float64
+	Sell      float64
+	High      float64
+	Low       float64
+	Vol       float64
+	Timestamp time.Time
 }
 
 type Position struct {
