@@ -5,6 +5,8 @@ const (
 	actionInsert =  "insert"
 	actionUpdate =  "update"
 	actionDelete =  "delete"
+
+	routeUrl = "/api/v1"
 )
 
 var (

@@ -34,6 +34,30 @@
   version = "v1.0.2"
 
 [[projects]]
+  digest = "1:7aefb397a53fc437c90f0fdb3e1419c751c5a3a165ced52325d5d797edf1aca6"
+  name = "github.com/moul/http2curl"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d"
+  version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d776f3e95774a8719f2e57fabbbb33103035fe072dcf6f1864f33abd17b753e5"
+  name = "github.com/parnurzeal/gorequest"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3"
+
+[[projects]]
+  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
+
+[[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
@@ -43,11 +67,47 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:ca4442090e3e524b7ff835c78b666db1a1a03211995ab2847a28e3c9b69af608"
+  name = "golang.org/x/net"
+  packages = [
+    "idna",
+    "publicsuffix",
+  ]
+  pruneopts = "UT"
+  revision = "ca1201d0de80cfde86cb01aea620983605dfe99b"
+
+[[projects]]
+  branch = "master"
   digest = "1:fdfd985fe7956d77128572032636b5c1b7b58a81acd7089e96923e2f9539c573"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
   revision = "51ab0e2deafac1f46c46ad59cf0921be2f180c3d"
+
+[[projects]]
+  digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
+  name = "golang.org/x/text"
+  packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
+    "internal/gen",
+    "internal/language",
+    "internal/language/compact",
+    "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
+    "language",
+    "secure/bidirule",
+    "transform",
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable",
+  ]
+  pruneopts = "UT"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
 
 [[projects]]
   digest = "1:c805e517269b0ba4c21ded5836019ed7d16953d4026cb7d00041d039c7906be9"
@@ -64,6 +124,7 @@
     "github.com/BurntSushi/toml",
     "github.com/gorilla/websocket",
     "github.com/juju/errors",
+    "github.com/parnurzeal/gorequest",
     "github.com/sirupsen/logrus",
     "gopkg.in/natefinch/lumberjack.v2",
   ]

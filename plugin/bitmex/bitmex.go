@@ -13,6 +13,8 @@ type Bitmex struct {
 	APIKey    string
 	APISecret string
 	Proxy     string
+	Timeout int
+	BaseUrl string
 
 	auth      *BitmexAuth
 	subscribe *BitmexSubscribe
@@ -37,6 +39,8 @@ func CreateBitmex(
 	bm.APIKey = exchangeConfig.APIKey
 	bm.APISecret = exchangeConfig.APISecret
 	bm.Proxy = httpConfig.Proxy
+	bm.Timeout = httpConfig.Timeout
+	bm.BaseUrl = exchangeConfig.HttpUrl + routeUrl
 	bm.auth = NewBitmexAuth(bm.APIKey, bm.APISecret, 24)
 	bm.subscribe = NewBitmexSubscribe(exchangeConfig.Symbols, exchangeConfig.Topic...)
 

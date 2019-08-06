@@ -18,9 +18,9 @@
     name = "github.com/gorilla/websocket"
     version = "1.4.0"
 
-# [[constraint]]
-#   name = "github.com/parnurzeal/gorequest"
-#   branch = "master"
+[[constraint]]
+  name = "github.com/parnurzeal/gorequest"
+  branch = "master"
 
 [prune]
   go-tests = true
