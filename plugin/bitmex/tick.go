@@ -39,6 +39,7 @@ func (bm *Bitmex) makeInstrument(data []map[string]interface{}) []*core.Tick {
 
 func (bm *Bitmex) insertTickList(symbol string, tickList []*core.Tick) {
 	updateLength := len(tickList)
+	length = len(bm.tickData[symbol])
 	if length+updateLength >= dataLength {
 		bm.tickData[symbol] = bm.tickData[symbol][length+updateLength-dataLength:]
 	}
@@ -69,28 +70,9 @@ func (bm *Bitmex) findTickItemByKeys(
 	symbol string, updateData map[string]interface{}) (int, *core.Tick) {
 	matched := true
 	for index, val := range bm.tickData[symbol] {
-		for _, key := range bm.tickKeys {
-			updateValue, ok := updateData[key].(string)
-			if ok {
-				value := core.GetFieldValue(val, key).String()
-				if value != updateValue {
-					matched = false
-				}
-			}
-			updateValue, ok := updateData[key].(float64)
-			if ok {
-				value := core.GetFieldValue(val, key).Float()
-				if value != updateValue {
-					matched = false
-				}
-			}
-			updateValue, ok := updateData[key].(int)
-			if ok {
-				value := int(core.GetFieldValue(val, key).Int())
-				if value != updateValue {
-					matched = false
-				}
-			}
+		value := val.Symbol
+		if updateData["symbol"].(string) != value {
+			matched = false
 		}
 		if matched {
 			return index, val

@@ -6,3 +6,9 @@ const (
 	actionUpdate =  "update"
 	actionDelete =  "delete"
 )
+
+var (
+	wsInstrumentKeys = []string{"symbol"}
+	wsTradeKeys = []string{}
+	wsQuoteKeys = []string{}
+)

@@ -52,9 +52,9 @@ func CreateBitmex(
 	bm.orderData = make(map[string][]*core.Order)
 	bm.positionData = make(map[string][]*core.Position)
 	for _, symbol := range exchangeConfig.Symbols {
-		bm.tickKeys[symbol] = make([]string, 0, 16)
-		bm.tradeKeys[symbol] = make([]string, 0, 16)
-		bm.quoteKeys[symbol] = make([]string, 0, 16)
+		bm.tickKeys[symbol] = wsInstrumentKeys
+		bm.tradeKeys[symbol] = wsTradeKeys
+		bm.quoteKeys[symbol] = wsQuoteKeys
 		bm.orderKeys[symbol] = make([]string, 0, 16)
 		bm.positionKeys[symbol] = make([]string, 0, 16)
 

@@ -46,14 +46,7 @@ func (bm *Bitmex) handleInstrument(action string, data map[string]interface{}) {
 	symbol := data["symbol"].(string)
 	d := data["data"].([]map[string]interface{})
 
-	length := len(bm.tickData[symbol])
-	if action == actionPartial  {
-		tickList := bm.makeInstrument(d)
-		bm.insertTickList(symbol, tickList)
-		bm.tickKeys[symbol] = append(
-			bm.tickKeys[symbol], data["keys"].([]string)...)
-		return
-	} else if action == actionInsert {
+	if action == actionPartial || action == actionInsert {
 		tickList := bm.makeInstrument(d)
 		bm.insertTickList(symbol, tickList)
 		return
@@ -77,9 +70,26 @@ func (bm *Bitmex) handleInstrument(action string, data map[string]interface{}) {
 }
 
 func (bm *Bitmex) handleTrade(action string, data []map[string]interface{}) {
+	symbol := data["symbol"].(string)
+	d := data["data"].([]map[string]interface{})
+
+	if action == actionPartial || action == actionInsert {
+		tradeList := bm.makeTrade(d)
+		bm.insertTradeList(symbol, tradeList)
+		return
+	}
 }
 
 func (bm *Bitmex) handleQuote(action string, data []map[string]interface{}) {
+	symbol := data["symbol"].(string)
+	d := data["data"].([]map[string]interface{})
+
+
+	if action == actionPartial || action == actionInsert {
+		quoteList := bm.makeQuote(d)
+		bm.insertQuoteList(symbol, quoteList)
+		return
+	}
 }
 
 func (bm *Bitmex) handleOrder(action string, data []map[string]interface{}) {

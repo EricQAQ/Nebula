@@ -31,13 +31,20 @@ type Order struct {
 
 type Trade struct {
 	Symbol    string
+	TID       string
 	Side      string
-	Size      int64
 	Price     float64
+	Amount    float64
 	Timestamp time.Time
 }
 
 type Quote struct {
+	Symbol    string
+	BidSize   float64
+	BidPrice  float64
+	AskSize   float64
+	AskPrice  float64
+	Timestamp time.Time
 }
 
 type Account struct {
