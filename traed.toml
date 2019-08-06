@@ -1,0 +1,45 @@
+[http]
+proxy = "http://127.0.0.1:1087"
+timeout = 1000
+
+[exchange]
+    [exchange.bitmex]
+    api-key = ""
+    api-secret = ""
+    address = ""
+    symbols = ["XBTUSD"]
+    topic = ["instrument", "trade", "quote"]
+    http-url = ""
+
+    [exchange.huobi]
+    api-key = ""
+    api-secret = ""
+    address = ""
+    symbols = []
+    topic = []
+    http-url = ""
+
+[websocket]
+# read wait timeout (ms)
+read-wait = 10000
+# write wait timeout (ms)
+write-wait = 10000
+# heartbeat duration (s)
+heartbeat-duration = 10
+retry = 5
+
+[log]
+# Log file path, if the value is "", it means output to stdout
+log-file = ""
+# Log level, ONLY in "debug", "info", "warn", "error", "fatal"
+log-level = "debug"
+# Log format, ONLY in "json", "text", "console", "highlight"
+log-format = "text"
+# Is log rotate enabled.
+LogRotate = true
+# Max size for a single file, in MB.
+MaxSize = 500
+# Max log keep days, default is never deleting.
+MaxDays = 14
+# Maximum number of old log files to retain.
+MaxBackups = 64
