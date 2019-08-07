@@ -30,7 +30,7 @@ func PrintInfo() {
 	log.Infof("Welcome to Traed.")
 	log.Infof("Release Version: %s %s %s.", VERSION, runtime.GOOS, runtime.GOARCH)
 	log.Infof("GoVersion: %s.", runtime.Version())
-	configJSON, err := json.MarshalIndent(config.GetAprilConfig(), "", "    ")
+	configJSON, err := json.MarshalIndent(config.GetTraedConfig(), "", "    ")
 	if err != nil {
 		panic(err)
 	}

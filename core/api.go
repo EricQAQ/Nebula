@@ -19,22 +19,23 @@ type WsAuthSubscribeHandler interface {
 }
 
 type OrderAPI interface {
-	LimitBuy(symbol string, price float64, quantity float32) (*core.Order, error)
-	LimitSell(symbol string, price float64, quantity float32) (*core.Order, error)
-	MarketBuy(symbol string, quantity float32) (*core.Order, error)
-	MarketSell(symbol string, quantity float32) (*core.Order, error)
-	LimitStopBuy(symbol string, stopPx float64, price float64, quantity float32) (*core.Order, error)
-	LimitStopSell(symbol string, stopPx float64, price float64, quantity float32) (*core.Order, error)
-	MarketStopBuy(symbol string, stopPx float64, quantity float32) (*core.Order, error)
-	MarketStopSell(symbol string, stopPx float64, quantity float32) (*core.Order, error)
-	LimitIfTouchedBuy(symbol string, stopPx float64, price float64, quantity float32)  (*core.Order, error)
-	LimitIfTouchedSell(symbol string, stopPx float64, price float64, quantity float32)  (*core.Order, error)
+	LimitBuy(symbol string, price float64, quantity float32) (*Order, error)
+	LimitSell(symbol string, price float64, quantity float32) (*Order, error)
+	MarketBuy(symbol string, quantity float32) (*Order, error)
+	MarketSell(symbol string, quantity float32) (*Order, error)
+	LimitStopBuy(symbol string, stopPx float64, price float64, quantity float32) (*Order, error)
+	LimitStopSell(symbol string, stopPx float64, price float64, quantity float32) (*Order, error)
+	MarketStopBuy(symbol string, stopPx float64, quantity float32) (*Order, error)
+	MarketStopSell(symbol string, stopPx float64, quantity float32) (*Order, error)
+	LimitIfTouchedBuy(symbol string, stopPx float64, price float64, quantity float32)  (*Order, error)
+	LimitIfTouchedSell(symbol string, stopPx float64, price float64, quantity float32)  (*Order, error)
 }
 
 type ExchangeAPI interface {
+	GetWsAuthHandler() WsAuthSubscribeHandler
 	GetWsSubscribeHandler() WsAuthSubscribeHandler
 	Parse(data []byte) (*ParsedData, error)
-	HandleMessage(core.ParsedData)
+	HandleMessage(ParsedData)
 
 	OrderAPI
 }

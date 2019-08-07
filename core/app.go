@@ -2,6 +2,9 @@ package core
 
 import (
 	"context"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/EricQAQ/Traed/config"
 	"github.com/EricQAQ/Traed/logger"
@@ -94,4 +97,30 @@ func (app *TraedApp) setupSingalHandler() {
 		log.Infof("Got signal [%s], prepare to exit.", sig)
 		app.Shutdown()
 	}()
+}
+
+func (app *TraedApp) Start() error {
+	app.setupSingalHandler()
+	printInfo()
+	for name, _ := range app.Exchange {
+		if err := app.CreateWsClient(); err != nil {
+			return CreateWsErr.FastGen(name, err.Error())
+		}
+	}
+	for _, ws := range app.wsMap {
+		ws.StartClient(app)
+	}
+	log.Infof("[April] Start April App.")
+	return nil
+}
+
+func (app *TraedApp) Stop() {
+	for _, ws := range app.wsMap {
+		ws.StopClient()
+	}
+	log.Infof("[April] Stop April App.")
+}
+
+func (app *TraedApp) Shutdown() {
+	cancel()
 }

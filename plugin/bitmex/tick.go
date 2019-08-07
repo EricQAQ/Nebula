@@ -1,6 +1,8 @@
 package bitmex
 
 import (
+	"time"
+
 	"github.com/EricQAQ/Traed/core"
 )
 
@@ -29,7 +31,7 @@ func (bm *Bitmex) makeInstrument(data []map[string]interface{}) []*core.Tick {
 			tick.Vol = vol.(float64)
 		}
 		if ts, ok := item["timestamp"].(string); ok {
-			tick.Timestamp = time.Parse(time.RFC3339, ts)
+			tick.Timestamp, _ = time.Parse(time.RFC3339, ts)
 		}
 		resp = append(resp, tick)
 	}
@@ -39,7 +41,7 @@ func (bm *Bitmex) makeInstrument(data []map[string]interface{}) []*core.Tick {
 
 func (bm *Bitmex) insertTickList(symbol string, tickList []*core.Tick) {
 	updateLength := len(tickList)
-	length = len(bm.tickData[symbol])
+	length := len(bm.tickData[symbol])
 	if length+updateLength >= dataLength {
 		bm.tickData[symbol] = bm.tickData[symbol][length+updateLength-dataLength:]
 	}
@@ -60,8 +62,8 @@ func (bm *Bitmex) updateTick(tick *core.Tick, data map[string]interface{}) {
 			tick.Sell = value.(float64)
 		} else if name == "homeNotional24h" {
 			tick.Vol = value.(float64)
-		} else if name == "timestamp"; ok {
-			tick.Timestamp = time.Parse(time.RFC3339, value.(string))
+		} else if name == "timestamp" {
+			tick.Timestamp, _ = time.Parse(time.RFC3339, value.(string))
 		}
 	}
 }

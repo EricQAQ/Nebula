@@ -47,8 +47,8 @@ func (bm *Bitmex) sendRequest(
 	if len(bm.Proxy) > 0 {
 		request = request.Proxy(bm.Proxy)
 	}
-	if bm.Timeout > 0 {
-		request = request.Timeout(bm.Timeout)
+	if bm.timeout > 0 {
+		request = request.Timeout(bm.timeout)
 	}
 	if needAuth {
 		expTs := time.Now().Add(time.Duration(expire) * time.Hour).Unix()

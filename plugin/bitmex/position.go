@@ -39,11 +39,11 @@ func (bm *Bitmex) makePosition(data []map[string]interface{}) []*core.Position {
 
 func (bm *Bitmex) insertPositionList(symbol string, PositionList []*core.Position) {
 	updateLength := len(PositionList)
-	length = len(bm.PositionData[symbol])
+	length := len(bm.positionData[symbol])
 	if length+updateLength >= dataLength {
-		bm.PositionData[symbol] = bm.PositionData[symbol][length+updateLength-dataLength:]
+		bm.positionData[symbol] = bm.positionData[symbol][length+updateLength-dataLength:]
 	}
-	bm.PositionData[symbol] = append(bm.PositionData[symbol], PositionList...)
+	bm.positionData[symbol] = append(bm.positionData[symbol], PositionList...)
 }
 
 func (bm *Bitmex) findPositionItemByKeys(
@@ -60,7 +60,7 @@ func (bm *Bitmex) findPositionItemByKeys(
 
 func (bm *Bitmex) updatePosition(pos *core.Position, data map[string]interface{}) {
 	if leverage, ok := data["leverage"]; ok {
-		pos.Leverage = leverage.(float64)
+		pos.LeverRate = leverage.(float64)
 	}
 	if liquPrice, ok := data["liquidationPrice"]; ok {
 		pos.ForceLiquPrice = liquPrice.(float64)

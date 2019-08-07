@@ -1,6 +1,8 @@
 package bitmex
 
 import (
+	"time"
+
 	"github.com/EricQAQ/Traed/core"
 )
 
@@ -24,7 +26,7 @@ func (bm *Bitmex) makeQuote(data []map[string]interface{}) []*core.Quote {
 			quote.AskSize = askSize.(float64)
 		}
 		if ts, ok := item["timestamp"].(string); ok {
-			quote.Timestamp = time.Parse(time.RFC3339, ts)
+			quote.Timestamp, _ = time.Parse(time.RFC3339, ts)
 		}
 		resp = append(resp, quote)
 	}
@@ -33,7 +35,7 @@ func (bm *Bitmex) makeQuote(data []map[string]interface{}) []*core.Quote {
 
 func (bm *Bitmex) insertQuoteList(symbol string, quoteList []*core.Quote) {
 	updateLength := len(quoteList)
-	length = len(bm.quoteData[symbol])
+	length := len(bm.quoteData[symbol])
 	if length+updateLength >= dataLength {
 		bm.quoteData[symbol] = bm.quoteData[symbol][length+updateLength-dataLength:]
 	}

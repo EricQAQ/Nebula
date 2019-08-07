@@ -33,7 +33,7 @@ func (w *Worker) StartWorker(app *TraedApp) {
 			if data.Type != Message || data.Type != ErrorMsg {
 				continue
 			}
-			w.msgHandler(data)
+			w.msgHandler.HandleMessage(data)
 		}
 	}
 }

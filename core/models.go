@@ -26,7 +26,6 @@ type Order struct {
 	Amount       float32
 	FilledAmount float32
 	Side         string
-	OrdType      string
 	OrdStatus    string
 	Timestamp    time.Time
 }

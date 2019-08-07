@@ -103,7 +103,7 @@ func (ws *WsClient) ReadMsg() error {
 			return nil
 		default:
 			ws.Conn.SetReadDeadline(time.Now().Add(ws.ReadWait))
-			mtype, msg, err := ws.Conn.ReadMessage()
+			_, msg, err := ws.Conn.ReadMessage()
 			if err != nil {
 				log.Warnf("[Traed WsClient(%s)] receive message error: %s, reconnect.", ws.exchangeName, err.Error())
 				if err = ws.retryReconnect(); err != nil {

@@ -40,14 +40,14 @@ func (bm *Bitmex) Parse(data []byte) (*core.ParsedData, error) {
 	if val, ok := rv["subscribe"]; ok {
 		pd.Type = core.SubscribeMsg
 		if rv["success"].(bool) {
-			log.Infof("[Traed Bitmex] Subscribe success: %s", val.Subscribe)
+			log.Infof("[Traed Bitmex] Subscribe success: %s", val.(string))
 		} else {
-			log.Infof("[April Bitmex] Subscribe failed: %s", val.Subscribe)
+			log.Infof("[April Bitmex] Subscribe failed: %s", val.(string))
 		}
 		return pd, nil
 	}
 
-	if isAuthMsg(rv) {
+	if bm.isAuthMsg(rv) {
 		pd.Type = core.AuthMsg
 		if rv["success"].(bool) {
 			log.Infof("[April Bitmex] Auth success.")

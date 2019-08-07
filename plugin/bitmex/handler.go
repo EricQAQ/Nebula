@@ -3,7 +3,6 @@ package bitmex
 import (
 	"reflect"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -24,7 +23,7 @@ func (bm *Bitmex) callByTableName(table, action string, data map[string]interfac
 		return
 	}
 	args := []reflect.Value{
-		reflect.Value(action), reflect.Value(data),
+		reflect.ValueOf(action), reflect.ValueOf(data),
 	}
 	fnName.Call(args)
 }
@@ -49,7 +48,7 @@ func (bm *Bitmex) handleInstrument(action string, data map[string]interface{}) {
 	if action == actionPartial || action == actionInsert {
 		tickList := bm.makeInstrument(d)
 		bm.insertTickList(symbol, tickList)
-	} else if action == updatePartial {
+	} else if action == actionUpdate {
 		for _, item := range d {
 			_, tick := bm.findTickItemByKeys(symbol, item)
 			if tick == nil {
@@ -57,16 +56,16 @@ func (bm *Bitmex) handleInstrument(action string, data map[string]interface{}) {
 			}
 			bm.updateTick(tick, item)
 		}
-	} else if action == deletePartial {
+	} else if action == actionDelete {
 		for _, item := range d {
-			index, tick := bm.findTickItemByKeys(symbol, item)
+			index, _ := bm.findTickItemByKeys(symbol, item)
 			bm.tickData[symbol] = append(
 				bm.tickData[symbol][:index], bm.tickData[symbol][index+1:]...)
 		}
 	}
 }
 
-func (bm *Bitmex) handleTrade(action string, data []map[string]interface{}) {
+func (bm *Bitmex) handleTrade(action string, data map[string]interface{}) {
 	symbol := data["symbol"].(string)
 	d := data["data"].([]map[string]interface{})
 
@@ -76,7 +75,7 @@ func (bm *Bitmex) handleTrade(action string, data []map[string]interface{}) {
 	}
 }
 
-func (bm *Bitmex) handleQuote(action string, data []map[string]interface{}) {
+func (bm *Bitmex) handleQuote(action string, data map[string]interface{}) {
 	symbol := data["symbol"].(string)
 	d := data["data"].([]map[string]interface{})
 
@@ -86,7 +85,7 @@ func (bm *Bitmex) handleQuote(action string, data []map[string]interface{}) {
 	}
 }
 
-func (bm *Bitmex) handleOrder(action string, data []map[string]interface{}) {
+func (bm *Bitmex) handleOrder(action string, data map[string]interface{}) {
 	symbol := data["symbol"].(string)
 	d := data["data"].([]map[string]interface{})
 
@@ -115,7 +114,7 @@ func (bm *Bitmex) handleOrder(action string, data []map[string]interface{}) {
 	}
 }
 
-func (bm *Bitmex) handlePosition(action string, data []map[string]interface{}) {
+func (bm *Bitmex) handlePosition(action string, data map[string]interface{}) {
 	symbol := data["symbol"].(string)
 	d := data["data"].([]map[string]interface{})
 
@@ -132,7 +131,7 @@ func (bm *Bitmex) handlePosition(action string, data []map[string]interface{}) {
 		}
 	} else if action == actionDelete {
 		for _, item := range d {
-			index, pos := bm.findPositionItemByKeys(symbol, item)
+			index, _ := bm.findPositionItemByKeys(symbol, item)
 			bm.positionData[symbol] = append(
 				bm.positionData[symbol][:index], bm.positionData[symbol][index+1:]...)
 		}

@@ -148,7 +148,7 @@ func initFileLog(cfg *config.LogConfig) error {
 	return nil
 }
 
-func CreateLoggerFromConfig(cfg *config.AprilConfig) error {
+func CreateLoggerFromConfig(cfg *config.TraedConfig) error {
 	logCfg := cfg.Log
 	log.SetLevel(stringToLogLevel(logCfg.Level))
 

@@ -112,7 +112,7 @@ func (bm *Bitmex) create_order(
 		data["stopPx"] = stopPx
 	}
 
-	resp, err := bm.doAuthRequest("POST", "/order", data, 1, makeOrder)
+	resp, err := bm.doAuthRequest("POST", "/order", data, 1, bm.makeSingleOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -125,33 +125,37 @@ func (bm *Bitmex) create_order(
 // func (bm *Bitmex) delete_order() {
 // }
 
+func (bm *Bitmex) makeSingleOrder(data map[string]interface{}) interface{} {
+	order := new(core.Order)
+	order.Symbol = data["symbol"].(string)
+	order.OrdStatus = data["ordStatus"].(string)
+	order.Timestamp, _ = time.Parse(time.RFC3339, data["timestamp"].(string))
+	order.Price = data["price"].(float64)
+	order.Amount = data["orderQty"].(float32)
+	order.OrdType = data["ordType"].(string)
+	order.Side = data["side"].(string)
+	order.OrderID = data["orderID"].(string)
+	order.ClOrdID = data["clOrdID"].(string)
+	order.AvgPrice = data["avgPx"].(float64)
+	if filledAmount, ok := data["cumQty"].(float32); ok {
+		order.FilledAmount = filledAmount
+	} else {
+		order.FilledAmount = 0.0
+	}
+	return order
+}
+
 func (bm *Bitmex) makeOrder(data []map[string]interface{}) []*core.Order {
 	resp := make([]*core.Order, 0, len(data))
 	for _, item := range data {
-		order := new(core.Order)
-		order.Symbol = item["symbol"].(string)
-		order.OrdStatus = item["ordStatus"].(string)
-		order.Timestamp = time.Parse(time.RFC3339, item["timestamp"].(string))
-		order.Price = item["price"].(float64)
-		order.Amount = item["orderQty"].(float32)
-		order.OrdType = item["ordType"].(string)
-		order.Side = item["side"].(string)
-		order.OrderID = item["orderID"].(string)
-		order.ClOrderID = item["clOrdID"].(string)
-		order.AvgPrice = item["avgPx"].(float64)
-		if filledAmount, ok := item["cumQty"].(float32); ok {
-			order.FilledAmount = filledAmount
-		} else {
-			order.FilledAmount = 0.0
-		}
-		resp = append(resp, order)
+		resp = append(resp, bm.makeSingleOrder(item).(*core.Order))
 	}
 	return resp
 }
 
 func (bm *Bitmex) insertOrderList(symbol string, orderList []*core.Order) {
 	updateLength := len(orderList)
-	length = len(bm.orderData[symbol])
+	length := len(bm.orderData[symbol])
 	if length+updateLength >= dataLength {
 		bm.orderData[symbol] = bm.orderData[symbol][length+updateLength-dataLength:]
 	}
@@ -171,7 +175,7 @@ func (bm *Bitmex) findOrderItemByKeys(
 func (bm *Bitmex) updateOrder(order *core.Order, data map[string]interface{}) {
 	for name, value := range data {
 		if name == "ordStatus" {
-			order.OrderStatus = value.(string)
+			order.OrdStatus = value.(string)
 		} else if name == "price" {
 			order.Price = value.(float64)
 		} else if name == "orderQty" {
@@ -185,13 +189,15 @@ func (bm *Bitmex) updateOrder(order *core.Order, data map[string]interface{}) {
 		} else if name == "filledAmount" {
 			order.FilledAmount = value.(float32)
 		} else if name == "timestamp" {
-			order.Timestamp = time.Parse(time.RFC3339, value.(string))
+			order.Timestamp, _ = time.Parse(time.RFC3339, value.(string))
 		}
 	}
 }
 
 func (bm *Bitmex) cleanOrder(index int, order *core.Order) {
-	if orderStatusMap[order.OrderStatus] != "open" {
-		bm.orderData = append(bm.orderData[:index], bm.orderData[index+1:]...)
+	if orderStatusMap[order.OrdStatus] != "open" {
+		bm.orderData[order.Symbol] = append(
+			bm.orderData[order.Symbol][:index],
+			bm.orderData[order.Symbol][index+1:]...)
 	}
 }

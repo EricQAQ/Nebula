@@ -1,6 +1,8 @@
 package bitmex
 
 import (
+	"time"
+
 	"github.com/EricQAQ/Traed/core"
 )
 
@@ -21,10 +23,10 @@ func (bm *Bitmex) makeTrade(data []map[string]interface{}) []*core.Trade {
 			trade.Price = price.(float64)
 		}
 		if trdMatchID, ok := item["trdMatchID"]; ok {
-			trade.TID = trdMatchID.(float64)
+			trade.TID = trdMatchID.(string)
 		}
 		if ts, ok := item["timestamp"].(string); ok {
-			trade.Timestamp = time.Parse(time.RFC3339, ts)
+			trade.Timestamp, _ = time.Parse(time.RFC3339, ts)
 		}
 		resp = append(resp, trade)
 	}
@@ -33,7 +35,7 @@ func (bm *Bitmex) makeTrade(data []map[string]interface{}) []*core.Trade {
 
 func (bm *Bitmex) insertTradeList(symbol string, tradeList []*core.Trade) {
 	updateLength := len(tradeList)
-	length = len(bm.tradeData[symbol])
+	length := len(bm.tradeData[symbol])
 	if length+updateLength >= dataLength {
 		bm.tradeData[symbol] = bm.tradeData[symbol][length+updateLength-dataLength:]
 	}

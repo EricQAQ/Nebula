@@ -1,6 +1,8 @@
 package bitmex
 
 import (
+	"time"
+
 	"github.com/EricQAQ/Traed/config"
 	"github.com/EricQAQ/Traed/core"
 )
@@ -13,7 +15,7 @@ type Bitmex struct {
 	APIKey    string
 	APISecret string
 	Proxy     string
-	Timeout   int
+	timeout   time.Duration
 	BaseUrl   string
 
 	auth      *BitmexAuth
@@ -39,7 +41,7 @@ func CreateBitmex(
 	bm.APIKey = exchangeConfig.APIKey
 	bm.APISecret = exchangeConfig.APISecret
 	bm.Proxy = httpConfig.Proxy
-	bm.Timeout = httpConfig.Timeout
+	bm.timeout = time.Duration(httpConfig.Timeout) * time.Millisecond
 	bm.BaseUrl = exchangeConfig.HttpUrl + routeUrl
 	bm.auth = NewBitmexAuth(bm.APIKey, bm.APISecret, 24)
 	bm.subscribe = NewBitmexSubscribe(exchangeConfig.Symbols, exchangeConfig.Topic...)
