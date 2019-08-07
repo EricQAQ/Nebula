@@ -34,22 +34,64 @@ func (bm *Bitmex) MarketSell(
 		0, 0, quantity)
 }
 
-func (bm *Bitmex) LimitStop(
+func (bm *Bitmex) LimitStopBuy(
 	symbol string, stopPx float64,
 	price float64, quantity float32) (*core.Order, error) {
+	return bm.create_order(
+		symbol, core.SideSell, core.OrdStopLimit,
+		price, stopPx, quantity)
 }
 
-func (bm *Bitmex) MarketStop(
+func (bm *Bitmex) LimitStopSell(
+	symbol string, stopPx float64,
+	price float64, quantity float32) (*core.Order, error) {
+	return bm.create_order(
+		symbol, core.SideBuy, core.OrdStopLimit,
+		price, stopPx, quantity)
+}
+
+func (bm *Bitmex) MarketStopBuy(
 	symbol string, stopPx float64, quantity float32) (*core.Order, error) {
+	return bm.create_order(
+		symbol, core.SideSell, core.OrdStop,
+		0, stopPx, quantity)
 }
 
-func (bm *Bitmex) LimitIfTouched(
+func (bm *Bitmex) MarketStopSell(
+	symbol string, stopPx float64, quantity float32) (*core.Order, error) {
+	return bm.create_order(
+		symbol, core.SideBuy, core.OrdStop,
+		0, stopPx, quantity)
+}
+
+func (bm *Bitmex) LimitIfTouchedBuy(
 	symbol string, stopPx float64, price float64,
 	quantity float32)  (*core.Order, error) {
+	return bm.create_order(
+		symbol, core.SideSell, core.LimitIfTouched,
+		price, stopPx, quantity)
 }
 
-func (bm *Bitmex) MarketIfTouched(
+func (bm *Bitmex) LimitIfTouchedSell(
+	symbol string, stopPx float64, price float64,
+	quantity float32)  (*core.Order, error) {
+	return bm.create_order(
+		symbol, core.SideBuy, core.LimitIfTouched,
+		price, stopPx, quantity)
+}
+
+func (bm *Bitmex) MarketIfTouchedBuy(
 	symbol string, stopPx float64, quantity float32)  (*core.Order, error) {
+	return bm.create_order(
+		symbol, core.SideSell, core.MarketIfTouched,
+		0, stopPx, quantity)
+}
+
+func (bm *Bitmex) MarketIfTouchedSell(
+	symbol string, stopPx float64, quantity float32)  (*core.Order, error) {
+	return bm.create_order(
+		symbol, core.SideBuy, core.MarketIfTouched,
+		0, stopPx, quantity)
 }
 
 func (bm *Bitmex) create_order(
