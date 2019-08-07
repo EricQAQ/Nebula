@@ -11,22 +11,24 @@ const (
 	OrdStopLimit    = "StopLimit"
 	LimitIfTouched  = "LimitIfTouched"
 	MarketIfTouched = "MarketIfTouched"
-)
 
-const (
 	SideBuy  = "Buy"
 	SideSell = "Sell"
 )
 
 type Order struct {
-	Symbol    string
-	OrderID   string
-	ClOrdID   string
-	Price     float64
-	Side      string
-	Qty       float64
-	OrdType   string
-	OrdStatus string
+	Symbol       string
+	OrderID      string
+	ClOrdID      string
+	OrdType      string
+	Price        float64
+	AvgPrice     float64
+	Amount       float32
+	FilledAmount float32
+	Side         string
+	OrdType      string
+	OrdStatus    string
+	Timestamp    time.Time
 }
 
 type Trade struct {
@@ -47,9 +49,6 @@ type Quote struct {
 	Timestamp time.Time
 }
 
-type Account struct {
-}
-
 type Tick struct {
 	Symbol    string
 	Last      float64
@@ -62,4 +61,23 @@ type Tick struct {
 }
 
 type Position struct {
+	Account        float32
+	Symbol         string
+	Currency       string
+	LeverRate      float64 // 杠杆率
+	ForceLiquPrice float64 //预估爆仓价
+
+	SellAmount     float64 // 空单量
+	SellAvailable  float64 // 可用空单量
+	SellPriceAvg   float64 // 空单开仓均价
+	SellPriceCost  float64 // 空单持仓金额
+	SellProfitReal float64 // 空单浮盈
+	OpenOrderSellQty float64 // 委托空单平仓数量
+
+	BuyAmount     float64 // 多单量
+	BuyAvailable  float64 // 可用多单量
+	BuyPriceAvg   float64 // 多单开仓均价
+	BuyPriceCost  float64 // 多餐持仓金额
+	BuyProfitReal float64 // 多单浮盈
+	OpenOrderBuyQty float64 // 委托多单平仓数量
 }

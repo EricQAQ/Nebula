@@ -68,13 +68,8 @@ func (bm *Bitmex) updateTick(tick *core.Tick, data map[string]interface{}) {
 
 func (bm *Bitmex) findTickItemByKeys(
 	symbol string, updateData map[string]interface{}) (int, *core.Tick) {
-	matched := true
 	for index, val := range bm.tickData[symbol] {
-		value := val.Symbol
-		if updateData["symbol"].(string) != value {
-			matched = false
-		}
-		if matched {
+		if val.Symbol == updateData["symbol"].(string) {
 			return index, val
 		}
 	}

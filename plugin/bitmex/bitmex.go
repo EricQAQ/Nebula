@@ -13,8 +13,8 @@ type Bitmex struct {
 	APIKey    string
 	APISecret string
 	Proxy     string
-	Timeout int
-	BaseUrl string
+	Timeout   int
+	BaseUrl   string
 
 	auth      *BitmexAuth
 	subscribe *BitmexSubscribe
@@ -59,8 +59,8 @@ func CreateBitmex(
 		bm.tickKeys[symbol] = wsInstrumentKeys
 		bm.tradeKeys[symbol] = wsTradeKeys
 		bm.quoteKeys[symbol] = wsQuoteKeys
-		bm.orderKeys[symbol] = make([]string, 0, 16)
-		bm.positionKeys[symbol] = make([]string, 0, 16)
+		bm.orderKeys[symbol] = wsOrderKeys
+		bm.positionKeys[symbol] = wsPositionKeys
 
 		bm.tickData[symbol] = make([]*core.Tick, 0, dataLength)
 		bm.tradeData[symbol] = make([]*core.Trade, 0, dataLength)
