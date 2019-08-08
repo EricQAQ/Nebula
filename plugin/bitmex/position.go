@@ -1,54 +1,76 @@
 package bitmex
 
 import (
+	"github.com/orcaman/concurrent-map"
+
 	"github.com/EricQAQ/Traed/core"
 )
 
-func (bm *Bitmex) makePosition(data map[string]interface{}) *core.Position {
-	pos := new(core.Position)
-	pos.Symbol = data["symbol"].(string)
-	pos.Account = data["account"].(float32)
-	pos.Currency = data["currency"].(string)
-	pos.LeverRate = data["leverage"].(float64)
-	pos.ForceLiquPrice = data["liquidationPrice"].(float64)
-	pos.OpenOrderBuyQty = data["openOrderBuyQty"].(float64)
-	pos.OpenOrderSellQty = data["openOrderSellQty"].(float64)
+type position struct {
+	positionKeys     map[string][]string
+	positionData     cmap.ConcurrentMap
+}
 
-	currQry := data["currentQty"].(float64)
-	if currQry > 0 {
-		// hold long position
-		pos.BuyAmount = currQry
-		pos.BuyPriceCost = data["avgCostPrice"].(float64)
-		pos.BuyPriceAvg = data["avgEntryPrice"].(float64)
-		pos.BuyProfitReal = data["unrealisedPnlPcnt"].(float64)
-		pos.BuyAvailable = pos.BuyAmount - pos.OpenOrderBuyQty
-	} else {
-		pos.SellAmount = -currQry
-		pos.SellPriceCost = data["avgCostPrice"].(float64)
-		pos.SellPriceAvg = data["avgEntryPrice"].(float64)
-		pos.SellProfitReal = data["unrealisedPnlPcnt"].(float64)
-		pos.SellAvailable = pos.SellAmount - pos.OpenOrderSellQty
+func newPosition(symbols []string) *position {
+	pos := new(position)
+	pos.positionKeys = make(map[string][]string)
+	pos.positionData = cmap.New()
+	for _, symbol := range symbols {
+		pos.positionKeys[symbol] = wsPositionKeys
+		pos.positionData.Set(symbol, make([]*core.Position, 0, dataLength))
 	}
 	return pos
 }
 
-func (bm *Bitmex) insertPosition(symbol string, position *core.Position) {
-	data, _ := bm.positionData.Get(symbol)
+func (pos *position) getPositionList(symbol string) []*core.Position {
+	data, _ := pos.positionData.Get(symbol)
 	posList := data.([]*core.Position)
+	return posList
+}
+
+func (pos *position) makePosition(data map[string]interface{}) *core.Position {
+	p := new(core.Position)
+	p.Symbol = data["symbol"].(string)
+	p.Account = data["account"].(float64)
+	p.Currency = data["currency"].(string)
+	p.LeverRate = data["leverage"].(float64)
+	p.ForceLiquPrice = data["liquidationPrice"].(float64)
+	p.OpenOrderBuyQty = data["openOrderBuyQty"].(float64)
+	p.OpenOrderSellQty = data["openOrderSellQty"].(float64)
+
+	currQry := data["currentQty"].(float64)
+	if currQry > 0 {
+		// hold long position
+		p.BuyAmount = currQry
+		p.BuyPriceCost = data["avgCostPrice"].(float64)
+		p.BuyPriceAvg = data["avgEntryPrice"].(float64)
+		p.BuyProfitReal = data["unrealisedPnlPcnt"].(float64)
+		p.BuyAvailable = p.BuyAmount - p.OpenOrderBuyQty
+	} else {
+		p.SellAmount = -currQry
+		p.SellPriceCost = data["avgCostPrice"].(float64)
+		p.SellPriceAvg = data["avgEntryPrice"].(float64)
+		p.SellProfitReal = data["unrealisedPnlPcnt"].(float64)
+		p.SellAvailable = p.SellAmount - p.OpenOrderSellQty
+	}
+	return p
+}
+
+func (pos *position) insertPosition(symbol string, position *core.Position) {
+	posList := pos.getPositionList(symbol)
 	length := len(posList)
 	if length >= dataLength {
 		posList = posList[length-dataLength:]
 	}
 	posList = append(posList, position)
-	bm.positionData.Set(symbol, posList)
+	pos.positionData.Set(symbol, posList)
 }
 
-func (bm *Bitmex) findPositionItemByKeys(
+func (pos *position) findPositionItemByKeys(
 	symbol string, updateData map[string]interface{}) (int, *core.Position) {
-	data, _ := bm.positionData.Get(symbol)
-	posList := data.([]*core.Position)
+	posList := pos.getPositionList(symbol)
 	for index, val := range posList {
-		if val.Account == updateData["account"].(float32) &&
+		if val.Account == updateData["account"].(float64) &&
 			val.Symbol == updateData["symbol"].(string) &&
 			val.Currency == updateData["currency"].(string) {
 			return index, val
@@ -57,55 +79,70 @@ func (bm *Bitmex) findPositionItemByKeys(
 	return 0, nil
 }
 
-func (bm *Bitmex) updatePosition(pos *core.Position, data map[string]interface{}) {
+func (pos *position) updatePosition(symbol string, data map[string]interface{}) {
+	_, position := pos.findPositionItemByKeys(symbol, data)
+	if position == nil {
+		return
+	}
+
 	if leverage, ok := data["leverage"]; ok {
-		pos.LeverRate = leverage.(float64)
+		position.LeverRate = leverage.(float64)
 	}
 	if liquPrice, ok := data["liquidationPrice"]; ok {
-		pos.ForceLiquPrice = liquPrice.(float64)
+		position.ForceLiquPrice = liquPrice.(float64)
 	}
 	if oob, ok := data["openOrderBuyQty"]; ok {
-		pos.OpenOrderBuyQty = oob.(float64)
+		position.OpenOrderBuyQty = oob.(float64)
 	}
 	if oos, ok := data["openOrderSellQty"]; ok {
-		pos.OpenOrderSellQty = oos.(float64)
+		position.OpenOrderSellQty = oos.(float64)
 	}
 	if currentQty, ok := data["currentQty"]; ok {
 		qty := currentQty.(float64)
 		if qty > 0 {
-			pos.SellAmount = 0
-			pos.SellPriceCost = 0
-			pos.SellPriceAvg = 0
-			pos.SellProfitReal = 0
-			pos.SellAvailable = 0
-			pos.BuyAmount = qty
+			position.SellAmount = 0
+			position.SellPriceCost = 0
+			position.SellPriceAvg = 0
+			position.SellProfitReal = 0
+			position.SellAvailable = 0
+			position.BuyAmount = qty
 			if acg, ok := data["avgCostPrice"]; ok {
-				pos.BuyPriceCost = acg.(float64)
+				position.BuyPriceCost = acg.(float64)
 			}
 			if aep, ok := data["avgEntryPrice"]; ok {
-				pos.BuyPriceAvg = aep.(float64)
+				position.BuyPriceAvg = aep.(float64)
 			}
 			if urp, ok := data["unrealisedPnlPcnt"]; ok {
-				pos.BuyProfitReal = urp.(float64)
+				position.BuyProfitReal = urp.(float64)
 			}
-			pos.BuyAvailable = pos.BuyAmount - pos.OpenOrderBuyQty
+			position.BuyAvailable = position.BuyAmount - position.OpenOrderBuyQty
 		} else {
-			pos.BuyAmount = 0
-			pos.BuyPriceCost = 0
-			pos.BuyPriceAvg = 0
-			pos.BuyProfitReal = 0
-			pos.BuyAvailable = 0
-			pos.SellAmount = -qty
+			position.BuyAmount = 0
+			position.BuyPriceCost = 0
+			position.BuyPriceAvg = 0
+			position.BuyProfitReal = 0
+			position.BuyAvailable = 0
+			position.SellAmount = -qty
 			if acg, ok := data["avgCostPrice"]; ok {
-				pos.SellPriceCost = acg.(float64)
+				position.SellPriceCost = acg.(float64)
 			}
 			if aep, ok := data["avgEntryPrice"]; ok {
-				pos.SellPriceAvg = aep.(float64)
+				position.SellPriceAvg = aep.(float64)
 			}
 			if urp, ok := data["unrealisedPnlPcnt"]; ok {
-				pos.SellProfitReal = urp.(float64)
+				position.SellProfitReal = urp.(float64)
 			}
-			pos.SellAvailable = pos.SellAmount - pos.OpenOrderSellQty
+			position.SellAvailable = position.SellAmount - position.OpenOrderSellQty
 		}
 	}
+}
+
+func (pos *position) deletePosition(symbol string, data map[string]interface{}) {
+	index, position := pos.findPositionItemByKeys(symbol, data)
+	if position == nil {
+		return
+	}
+	posList := pos.getPositionList(symbol)
+	posList = append(posList[:index], posList[index+1:]...)
+	pos.positionData.Set(symbol, posList)
 }

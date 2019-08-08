@@ -3,8 +3,126 @@ package bitmex
 import (
 	"time"
 
+	"github.com/orcaman/concurrent-map"
+
 	"github.com/EricQAQ/Traed/core"
 )
+
+type order struct {
+	orderKeys     map[string][]string
+	orderData     cmap.ConcurrentMap
+}
+
+func newOrder(symbols []string) *order {
+	ord := new(order)
+	ord.orderKeys = make(map[string][]string)
+	ord.orderData = cmap.New()
+	for _, symbol := range symbols {
+		ord.orderKeys[symbol] = wsOrderKeys
+		ord.orderData.Set(symbol, make([]*core.Order, 0, dataLength))
+	}
+	return ord
+}
+
+func (ord *order) getOrderList(symbol string) []*core.Order {
+	data, _ := ord.orderData.Get(symbol)
+	orderList := data.([]*core.Order)
+	return orderList
+}
+
+func (ord *order) makeOrder(data map[string]interface{}) *core.Order {
+	order := new(core.Order)
+	order.Symbol = data["symbol"].(string)
+	order.OrdStatus = data["ordStatus"].(string)
+	order.Timestamp, _ = time.Parse(time.RFC3339, data["timestamp"].(string))
+	order.Price = data["price"].(float64)
+	order.Amount = data["orderQty"].(float32)
+	order.OrdType = data["ordType"].(string)
+	order.Side = data["side"].(string)
+	order.OrderID = data["orderID"].(string)
+	order.ClOrdID = data["clOrdID"].(string)
+	order.AvgPrice = data["avgPx"].(float64)
+	if filledAmount, ok := data["cumQty"].(float32); ok {
+		order.FilledAmount = filledAmount
+	} else {
+		order.FilledAmount = 0.0
+	}
+	return order
+}
+
+func (ord *order) insertOrder(symbol string, order *core.Order) {
+	orderList := ord.getOrderList(symbol)
+	length := len(orderList)
+	if length >= dataLength {
+		orderList = orderList[length-dataLength:]
+	}
+	orderList = append(orderList, order)
+	ord.orderData.Set(symbol, orderList)
+}
+
+func (ord *order) findOrderItemByKeys(
+	symbol string, updateData map[string]interface{}) (int, *core.Order) {
+	orderList := ord.getOrderList(symbol)
+	for index, val := range orderList {
+		if val.OrderID == updateData["orderID"].(string) {
+			return index, val
+		}
+	}
+	return 0, nil
+}
+
+func (ord *order) updateOrder(symbol string, data map[string]interface{}) {
+	index, order := ord.findOrderItemByKeys(symbol, data)
+	if order == nil {
+		return
+	}
+	for name, value := range data {
+		if name == "ordStatus" {
+			order.OrdStatus = value.(string)
+		} else if name == "price" {
+			order.Price = value.(float64)
+		} else if name == "orderQty" {
+			order.Amount = value.(float32)
+		} else if name == "ordType" {
+			order.OrdType = value.(string)
+		} else if name == "side" {
+			order.Side = value.(string)
+		} else if name == "avgPx" {
+			order.AvgPrice = value.(float64)
+		} else if name == "filledAmount" {
+			order.FilledAmount = value.(float32)
+		} else if name == "timestamp" {
+			order.Timestamp, _ = time.Parse(time.RFC3339, value.(string))
+		}
+	}
+	// Remove cancelled / filled orders
+	ord.cleanOrder(index, order)
+}
+
+func (ord *order) deleteOrder(symbol string, data map[string]interface{}) {
+	index, order := ord.findOrderItemByKeys(symbol, data)
+	if order == nil {
+		return
+	}
+	ordList := ord.getOrderList(symbol)
+	ordList = append(ordList[:index], ordList[index+1:]...)
+	ord.orderData.Set(symbol, ordList)
+}
+
+func (ord *order) needDeleteOrder(order *core.Order) bool {
+	if orderStatusMap[order.OrdStatus] != "open" {
+		return true
+	}
+	return false
+}
+
+func (ord *order) cleanOrder(index int, order *core.Order) {
+	if ord.needDeleteOrder(order) {
+		orderList := ord.getOrderList(order.Symbol)
+		orderList = append(orderList[:index], orderList[index+1:]...)
+		ord.orderData.Set(order.Symbol, orderList)
+	}
+}
 
 func (bm *Bitmex) LimitBuy(
 	symbol string, price float64, quantity float32) (*core.Order, error) {
@@ -126,86 +244,5 @@ func (bm *Bitmex) create_order(
 // }
 
 func (bm *Bitmex) makeSingleOrder(data map[string]interface{}) interface{} {
-	return bm.makeOrder(data)
-}
-
-func (bm *Bitmex) makeOrder(data map[string]interface{}) *core.Order {
-	order := new(core.Order)
-	order.Symbol = data["symbol"].(string)
-	order.OrdStatus = data["ordStatus"].(string)
-	order.Timestamp, _ = time.Parse(time.RFC3339, data["timestamp"].(string))
-	order.Price = data["price"].(float64)
-	order.Amount = data["orderQty"].(float32)
-	order.OrdType = data["ordType"].(string)
-	order.Side = data["side"].(string)
-	order.OrderID = data["orderID"].(string)
-	order.ClOrdID = data["clOrdID"].(string)
-	order.AvgPrice = data["avgPx"].(float64)
-	if filledAmount, ok := data["cumQty"].(float32); ok {
-		order.FilledAmount = filledAmount
-	} else {
-		order.FilledAmount = 0.0
-	}
-	return order
-}
-
-func (bm *Bitmex) insertOrder(symbol string, order *core.Order) {
-	data, _ := bm.orderData.Get(symbol)
-	orderList := data.([]*core.Order)
-	length := len(orderList)
-	if length >= dataLength {
-		orderList = orderList[length-dataLength:]
-	}
-	orderList = append(orderList, order)
-	bm.orderData.Set(symbol, orderList)
-}
-
-func (bm *Bitmex) findOrderItemByKeys(
-	symbol string, updateData map[string]interface{}) (int, *core.Order) {
-	data, _ := bm.orderData.Get(symbol)
-	orderList := data.([]*core.Order)
-	for index, val := range orderList {
-		if val.OrderID == updateData["orderID"].(string) {
-			return index, val
-		}
-	}
-	return 0, nil
-}
-
-func (bm *Bitmex) updateOrder(order *core.Order, data map[string]interface{}) {
-	for name, value := range data {
-		if name == "ordStatus" {
-			order.OrdStatus = value.(string)
-		} else if name == "price" {
-			order.Price = value.(float64)
-		} else if name == "orderQty" {
-			order.Amount = value.(float32)
-		} else if name == "ordType" {
-			order.OrdType = value.(string)
-		} else if name == "side" {
-			order.Side = value.(string)
-		} else if name == "avgPx" {
-			order.AvgPrice = value.(float64)
-		} else if name == "filledAmount" {
-			order.FilledAmount = value.(float32)
-		} else if name == "timestamp" {
-			order.Timestamp, _ = time.Parse(time.RFC3339, value.(string))
-		}
-	}
-}
-
-func (bm *Bitmex) needDeleteOrder(order *core.Order) bool {
-	if orderStatusMap[order.OrdStatus] != "open" {
-		return true
-	}
-	return false
-}
-
-func (bm *Bitmex) cleanOrder(index int, order *core.Order) {
-	if bm.needDeleteOrder(order) {
-		data, _ := bm.orderData.Get(order.Symbol)
-		orderList := data.([]*core.Order)
-		orderList = append( orderList[:index], orderList[index+1:]...)
-		bm.orderData.Set(order.Symbol, orderList)
-	}
+	return bm.orderData.makeOrder(data)
 }

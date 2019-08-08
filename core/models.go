@@ -60,7 +60,7 @@ type Tick struct {
 }
 
 type Position struct {
-	Account        float32
+	Account        float64
 	Symbol         string
 	Currency       string
 	LeverRate      float64 // 杠杆率

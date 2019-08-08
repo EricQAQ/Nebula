@@ -3,10 +3,44 @@ package bitmex
 import (
 	"time"
 
+	"github.com/orcaman/concurrent-map"
+
 	"github.com/EricQAQ/Traed/core"
 )
 
-func (bm *Bitmex) makeTrade(data map[string]interface{}) *core.Trade {
+type trade struct {
+	tradeKeys     map[string][]string
+	tradeData     cmap.ConcurrentMap
+}
+
+func newTrade(symbols []string) *trade {
+	t := new(trade)
+	t.tradeKeys = make(map[string][]string)
+	t.tradeData = cmap.New()
+	for _, symbol := range symbols {
+		t.tradeKeys[symbol] = wsTradeKeys
+		t.tradeData.Set(symbol, make([]*core.Trade, 0, dataLength))
+	}
+	return t
+}
+
+func (td *trade) getTradeList(symbol string) []*core.Trade {
+	data, _ := td.tradeData.Get(symbol)
+	tradeList := data.([]*core.Trade)
+	return tradeList
+}
+
+func (td *trade) insertTrade(symbol string, trade *core.Trade) {
+	tradeList := td.getTradeList(symbol)
+	length := len(tradeList)
+	if length >= dataLength {
+		tradeList = tradeList[length-dataLength:]
+	}
+	tradeList = append(tradeList, trade)
+	td.tradeData.Set(symbol, tradeList)
+}
+
+func (td *trade) makeTrade(data map[string]interface{}) *core.Trade {
 	trade := new(core.Trade)
 	trade.Symbol = data["symbol"].(string)
 
@@ -26,15 +60,4 @@ func (bm *Bitmex) makeTrade(data map[string]interface{}) *core.Trade {
 		trade.Timestamp, _ = time.Parse(time.RFC3339, ts)
 	}
 	return trade
-}
-
-func (bm *Bitmex) insertTrade(symbol string, trade *core.Trade) {
-	data, _ := bm.tradeData.Get(symbol)
-	tradeList := data.([]*core.Trade)
-	length := len(tradeList)
-	if length >= dataLength {
-		tradeList = tradeList[length-dataLength:]
-	}
-	tradeList = append(tradeList, trade)
-	bm.tradeData.Set(symbol, tradeList)
 }

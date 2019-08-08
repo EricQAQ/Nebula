@@ -31,11 +31,7 @@ func main() {
 	go func() {
 		var ts time.Time
 		for {
-			tick, err := bm.GetTick("XBTUSD")
-			if err != nil {
-				log.Errorf("get tick error: %s", err.Error())
-				continue
-			}
+			tick := bm.GetTick("XBTUSD")
 			if tick == nil {
 				continue
 			}

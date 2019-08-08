@@ -48,26 +48,12 @@ func (bm *Bitmex) HandleInstrument(action string, data map[string]interface{}) {
 		symbol := ret["symbol"].(string)
 
 		if action == actionPartial || action == actionInsert {
-			tick := bm.makeInstrument(ret)
-			bm.insertTick(symbol, tick)
-			log.Infof("Insert tick")
+			tick := bm.tickData.makeInstrument(ret)
+			bm.tickData.insertTick(symbol, tick)
 		} else if action == actionUpdate {
-			data, _ := bm.tickData.Get(symbol)
-			dl := data.([]*core.Tick)
-			length := len(dl)
-			if length <= 0 {
-				return
-			}
-			bm.updateTick(dl[length-1], ret)
-			log.Infof("Update tick")
+			bm.tickData.updateTick(symbol, ret)
 		} else if action == actionDelete {
-			data, _ := bm.tickData.Get(symbol)
-			dl := data.([]*core.Tick)
-			length := len(dl)
-			if length <= 0 {
-				return
-			}
-			dl = dl[:length-2]
+			bm.tickData.deleteLastTick(symbol)
 		}
 	}
 }
@@ -78,8 +64,8 @@ func (bm *Bitmex) HandleTrade(action string, data map[string]interface{}) {
 		ret := rv.(map[string]interface{})
 		symbol := ret["symbol"].(string)
 		if action == actionPartial || action == actionInsert {
-			trade := bm.makeTrade(ret)
-			bm.insertTrade(symbol, trade)
+			trade := bm.tradeData.makeTrade(ret)
+			bm.tradeData.insertTrade(symbol, trade)
 		}
 	}
 }
@@ -90,8 +76,8 @@ func (bm *Bitmex) HandleQuote(action string, data map[string]interface{}) {
 		ret := rv.(map[string]interface{})
 		symbol := ret["symbol"].(string)
 		if action == actionPartial || action == actionInsert {
-			quote := bm.makeQuote(ret)
-			bm.insertQuote(symbol, quote)
+			quote := bm.quoteData.makeQuote(ret)
+			bm.quoteData.insertQuote(symbol, quote)
 		}
 	}
 }
@@ -102,24 +88,12 @@ func (bm *Bitmex) HandleOrder(action string, data map[string]interface{}) {
 		ret := rv.(map[string]interface{})
 		symbol := ret["symbol"].(string)
 		if action == actionPartial || action == actionInsert {
-			order := bm.makeOrder(ret)
-			bm.insertOrder(symbol, order)
+			order := bm.orderData.makeOrder(ret)
+			bm.orderData.insertOrder(symbol, order)
 		} else if action == actionUpdate {
-			index, order := bm.findOrderItemByKeys(symbol, ret)
-			if order == nil {
-				return
-			}
-			bm.updateOrder(order, ret)
-			// Remove cancelled / filled orders
-			bm.cleanOrder(index, order)
+			bm.orderData.updateOrder(symbol, ret)
 		} else if action == actionDelete {
-			index, order := bm.findOrderItemByKeys(symbol, ret)
-			if order == nil {
-				return
-			}
-			data, _ := bm.orderData.Get(symbol)
-			dl := data.([]*core.Order)
-			dl = append(dl[:index], dl[index+1:]...)
+			bm.orderData.deleteOrder(symbol, ret)
 		}
 	}
 }
@@ -130,22 +104,12 @@ func (bm *Bitmex) HandlePosition(action string, data map[string]interface{}) {
 		ret := rv.(map[string]interface{})
 		symbol := ret["symbol"].(string)
 		if action == actionPartial || action == actionInsert {
-			pos := bm.makePosition(ret)
-			bm.insertPosition(symbol, pos)
+			pos := bm.positionData.makePosition(ret)
+			bm.positionData.insertPosition(symbol, pos)
 		} else if action == actionUpdate {
-			_, pos := bm.findPositionItemByKeys(symbol, ret)
-			if pos == nil {
-				return
-			}
-			bm.updatePosition(pos, ret)
+			bm.positionData.updatePosition(symbol, ret)
 		} else if action == actionDelete {
-			index, pos := bm.findPositionItemByKeys(symbol, ret)
-			if pos == nil {
-				return
-			}
-			data, _ := bm.positionData.Get(symbol)
-			dl := data.([]*core.Position)
-			dl = append(dl[:index], dl[index+1:]...)
+			bm.positionData.deletePosition(symbol, ret)
 		}
 	}
 }
