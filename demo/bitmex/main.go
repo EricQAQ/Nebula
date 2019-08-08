@@ -6,6 +6,8 @@ import (
 
 	"github.com/EricQAQ/Traed/core"
 	"github.com/EricQAQ/Traed/plugin/bitmex"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -25,6 +27,20 @@ func main() {
 	if err = app.Start(); err != nil {
 		os.Exit(0)
 	}
+	go func() {
+		for {
+			tick, err := bm.GetTick("XBTUSD")
+			if err != nil {
+				log.Errorf("get tick error: %s", err.Error())
+				continue
+			}
+			if tick == nil {
+				continue
+			}
+			log.Infof(
+				"Receive tick data: symbol: %s, last: %f, buy: %f, sell: %f, high: %f, low: %f, vol: %f, time: %s", tick.Symbol, tick.Last, tick.Buy, tick.Sell, tick.High, tick.Low, tick.Vol, tick.Timestamp)
+		}
+	}()
 	app.Stop()
 	os.Exit(0)
 }

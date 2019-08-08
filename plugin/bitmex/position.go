@@ -4,46 +4,40 @@ import (
 	"github.com/EricQAQ/Traed/core"
 )
 
-func (bm *Bitmex) makePosition(data []map[string]interface{}) []*core.Position {
-	resp := make([]*core.Position, 0, len(data))
+func (bm *Bitmex) makePosition(data map[string]interface{}) *core.Position {
+	pos := new(core.Position)
+	pos.Symbol = data["symbol"].(string)
+	pos.Account = data["account"].(float32)
+	pos.Currency = data["currency"].(string)
+	pos.LeverRate = data["leverage"].(float64)
+	pos.ForceLiquPrice = data["liquidationPrice"].(float64)
+	pos.OpenOrderBuyQty = data["openOrderBuyQty"].(float64)
+	pos.OpenOrderSellQty = data["openOrderSellQty"].(float64)
 
-	for _, item := range data {
-		pos := new(core.Position)
-		pos.Symbol = item["symbol"].(string)
-		pos.Account = item["account"].(float32)
-		pos.Currency = item["currency"].(string)
-		pos.LeverRate = item["leverage"].(float64)
-		pos.ForceLiquPrice = item["liquidationPrice"].(float64)
-		pos.OpenOrderBuyQty = item["openOrderBuyQty"].(float64)
-		pos.OpenOrderSellQty = item["openOrderSellQty"].(float64)
-
-		currQry := item["currentQty"].(float64)
-		if currQry > 0 {
-			// hold long position
-			pos.BuyAmount = currQry
-			pos.BuyPriceCost = item["avgCostPrice"].(float64)
-			pos.BuyPriceAvg = item["avgEntryPrice"].(float64)
-			pos.BuyProfitReal = item["unrealisedPnlPcnt"].(float64)
-			pos.BuyAvailable = pos.BuyAmount - pos.OpenOrderBuyQty
-		} else {
-			pos.SellAmount = -currQry
-			pos.SellPriceCost = item["avgCostPrice"].(float64)
-			pos.SellPriceAvg = item["avgEntryPrice"].(float64)
-			pos.SellProfitReal = item["unrealisedPnlPcnt"].(float64)
-			pos.SellAvailable = pos.SellAmount - pos.OpenOrderSellQty
-		}
-		resp = append(resp, pos)
+	currQry := data["currentQty"].(float64)
+	if currQry > 0 {
+		// hold long position
+		pos.BuyAmount = currQry
+		pos.BuyPriceCost = data["avgCostPrice"].(float64)
+		pos.BuyPriceAvg = data["avgEntryPrice"].(float64)
+		pos.BuyProfitReal = data["unrealisedPnlPcnt"].(float64)
+		pos.BuyAvailable = pos.BuyAmount - pos.OpenOrderBuyQty
+	} else {
+		pos.SellAmount = -currQry
+		pos.SellPriceCost = data["avgCostPrice"].(float64)
+		pos.SellPriceAvg = data["avgEntryPrice"].(float64)
+		pos.SellProfitReal = data["unrealisedPnlPcnt"].(float64)
+		pos.SellAvailable = pos.SellAmount - pos.OpenOrderSellQty
 	}
-	return resp
+	return pos
 }
 
-func (bm *Bitmex) insertPositionList(symbol string, PositionList []*core.Position) {
-	updateLength := len(PositionList)
+func (bm *Bitmex) insertPosition(symbol string, position *core.Position) {
 	length := len(bm.positionData[symbol])
-	if length+updateLength >= dataLength {
-		bm.positionData[symbol] = bm.positionData[symbol][length+updateLength-dataLength:]
+	if length >= dataLength {
+		bm.positionData[symbol] = bm.positionData[symbol][length-dataLength:]
 	}
-	bm.positionData[symbol] = append(bm.positionData[symbol], PositionList...)
+	bm.positionData[symbol] = append(bm.positionData[symbol], position)
 }
 
 func (bm *Bitmex) findPositionItemByKeys(

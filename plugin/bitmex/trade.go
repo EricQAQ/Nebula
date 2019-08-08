@@ -6,38 +6,32 @@ import (
 	"github.com/EricQAQ/Traed/core"
 )
 
-func (bm *Bitmex) makeTrade(data []map[string]interface{}) []*core.Trade {
-	resp := make([]*core.Trade, 0, len(data))
+func (bm *Bitmex) makeTrade(data map[string]interface{}) *core.Trade {
+	trade := new(core.Trade)
+	trade.Symbol = data["symbol"].(string)
 
-	for _, item := range data {
-		trade := new(core.Trade)
-		trade.Symbol = item["symbol"].(string)
-
-		if side, ok := item["side"]; ok {
-			trade.Side = side.(string)
-		}
-		if size, ok := item["size"]; ok {
-			trade.Amount = size.(float64)
-		}
-		if price, ok := item["price"]; ok {
-			trade.Price = price.(float64)
-		}
-		if trdMatchID, ok := item["trdMatchID"]; ok {
-			trade.TID = trdMatchID.(string)
-		}
-		if ts, ok := item["timestamp"].(string); ok {
-			trade.Timestamp, _ = time.Parse(time.RFC3339, ts)
-		}
-		resp = append(resp, trade)
+	if side, ok := data["side"]; ok {
+		trade.Side = side.(string)
 	}
-	return resp
+	if size, ok := data["size"]; ok {
+		trade.Amount = size.(float64)
+	}
+	if price, ok := data["price"]; ok {
+		trade.Price = price.(float64)
+	}
+	if trdMatchID, ok := data["trdMatchID"]; ok {
+		trade.TID = trdMatchID.(string)
+	}
+	if ts, ok := data["timestamp"].(string); ok {
+		trade.Timestamp, _ = time.Parse(time.RFC3339, ts)
+	}
+	return trade
 }
 
-func (bm *Bitmex) insertTradeList(symbol string, tradeList []*core.Trade) {
-	updateLength := len(tradeList)
+func (bm *Bitmex) insertTrade(symbol string, trade *core.Trade) {
 	length := len(bm.tradeData[symbol])
-	if length+updateLength >= dataLength {
-		bm.tradeData[symbol] = bm.tradeData[symbol][length+updateLength-dataLength:]
+	if length >= dataLength {
+		bm.tradeData[symbol] = bm.tradeData[symbol][length-dataLength:]
 	}
-	bm.tradeData[symbol] = append(bm.tradeData[symbol], tradeList...)
+	bm.tradeData[symbol] = append(bm.tradeData[symbol], trade)
 }

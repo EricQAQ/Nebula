@@ -6,38 +6,32 @@ import (
 	"github.com/EricQAQ/Traed/core"
 )
 
-func (bm *Bitmex) makeQuote(data []map[string]interface{}) []*core.Quote {
-	resp := make([]*core.Quote, 0, len(data))
+func (bm *Bitmex) makeQuote(data map[string]interface{}) *core.Quote {
+	quote := new(core.Quote)
+	quote.Symbol = data["symbol"].(string)
 
-	for _, item := range data {
-		quote := new(core.Quote)
-		quote.Symbol = item["symbol"].(string)
-
-		if bidSize, ok := item["bidSize"]; ok {
-			quote.BidSize = bidSize.(float64)
-		}
-		if bidPrice, ok := item["bidPrice"]; ok {
-			quote.BidPrice = bidPrice.(float64)
-		}
-		if askPrice, ok := item["askPrice"]; ok {
-			quote.AskPrice = askPrice.(float64)
-		}
-		if askSize, ok := item["askSize"]; ok {
-			quote.AskSize = askSize.(float64)
-		}
-		if ts, ok := item["timestamp"].(string); ok {
-			quote.Timestamp, _ = time.Parse(time.RFC3339, ts)
-		}
-		resp = append(resp, quote)
+	if bidSize, ok := data["bidSize"]; ok {
+		quote.BidSize = bidSize.(float64)
 	}
-	return resp
+	if bidPrice, ok := data["bidPrice"]; ok {
+		quote.BidPrice = bidPrice.(float64)
+	}
+	if askPrice, ok := data["askPrice"]; ok {
+		quote.AskPrice = askPrice.(float64)
+	}
+	if askSize, ok := data["askSize"]; ok {
+		quote.AskSize = askSize.(float64)
+	}
+	if ts, ok := data["timestamp"].(string); ok {
+		quote.Timestamp, _ = time.Parse(time.RFC3339, ts)
+	}
+	return quote
 }
 
-func (bm *Bitmex) insertQuoteList(symbol string, quoteList []*core.Quote) {
-	updateLength := len(quoteList)
+func (bm *Bitmex) insertQuote(symbol string, quote *core.Quote) {
 	length := len(bm.quoteData[symbol])
-	if length+updateLength >= dataLength {
-		bm.quoteData[symbol] = bm.quoteData[symbol][length+updateLength-dataLength:]
+	if length >= dataLength {
+		bm.quoteData[symbol] = bm.quoteData[symbol][length-dataLength:]
 	}
-	bm.quoteData[symbol] = append(bm.quoteData[symbol], quoteList...)
+	bm.quoteData[symbol] = append(bm.quoteData[symbol], quote)
 }

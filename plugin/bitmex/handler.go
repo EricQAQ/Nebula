@@ -16,16 +16,16 @@ import (
 // 'delete'  - delete row
 
 func (bm *Bitmex) callByTableName(table, action string, data map[string]interface{}) {
-	value := reflect.ValueOf(bm).Elem()
-	fnName := value.MethodByName("handle" + strings.Title(table))
-	if fnName.IsNil() {
+	fnName, exist := reflect.TypeOf(bm).MethodByName("Handle" + strings.Title(table))
+	if !exist {
 		log.Errorf("Unsupport topic: %s", table)
 		return
 	}
-	args := []reflect.Value{
-		reflect.ValueOf(action), reflect.ValueOf(data),
-	}
-	fnName.Call(args)
+	args := make([]reflect.Value, 3)
+	args[0] = reflect.ValueOf(bm)
+	args[1] = reflect.ValueOf(action)
+	args[2] = reflect.ValueOf(data)
+	fnName.Func.Call(args)
 }
 
 func (bm *Bitmex) HandleMessage(data core.ParsedData) {
@@ -41,70 +41,73 @@ func (bm *Bitmex) HandleMessage(data core.ParsedData) {
 	bm.callByTableName(table, action, data.Data)
 }
 
-func (bm *Bitmex) handleInstrument(action string, data map[string]interface{}) {
-	symbol := data["symbol"].(string)
-	d := data["data"].([]map[string]interface{})
+func (bm *Bitmex) HandleInstrument(action string, data map[string]interface{}) {
+	retList := data["data"].([]interface{})
+	for _, rv := range retList {
+		ret := rv.(map[string]interface{})
+		symbol := ret["symbol"].(string)
 
-	if action == actionPartial || action == actionInsert {
-		tickList := bm.makeInstrument(d)
-		bm.insertTickList(symbol, tickList)
-	} else if action == actionUpdate {
-		for _, item := range d {
-			_, tick := bm.findTickItemByKeys(symbol, item)
-			if tick == nil {
+		if action == actionPartial || action == actionInsert {
+			tick := bm.makeInstrument(ret)
+			bm.insertTick(symbol, tick)
+		} else if action == actionUpdate {
+			length := len(bm.tickData[symbol])
+			if length <= 0 {
 				return
 			}
-			bm.updateTick(tick, item)
+			bm.updateTick(bm.tickData[symbol][length-1], ret)
+		} else if action == actionDelete {
+			length := len(bm.tickData[symbol])
+			if length <= 0 {
+				return
+			}
+			bm.tickData[symbol] = bm.tickData[symbol][:length-2]
 		}
-	} else if action == actionDelete {
-		for _, item := range d {
-			index, _ := bm.findTickItemByKeys(symbol, item)
-			bm.tickData[symbol] = append(
-				bm.tickData[symbol][:index], bm.tickData[symbol][index+1:]...)
+	}
+}
+
+func (bm *Bitmex) HandleTrade(action string, data map[string]interface{}) {
+	retList := data["data"].([]interface{})
+	for _, rv := range retList {
+		ret := rv.(map[string]interface{})
+		symbol := ret["symbol"].(string)
+		if action == actionPartial || action == actionInsert {
+			trade := bm.makeTrade(ret)
+			bm.insertTrade(symbol, trade)
 		}
 	}
 }
 
-func (bm *Bitmex) handleTrade(action string, data map[string]interface{}) {
-	symbol := data["symbol"].(string)
-	d := data["data"].([]map[string]interface{})
-
-	if action == actionPartial || action == actionInsert {
-		tradeList := bm.makeTrade(d)
-		bm.insertTradeList(symbol, tradeList)
+func (bm *Bitmex) HandleQuote(action string, data map[string]interface{}) {
+	retList := data["data"].([]interface{})
+	for _, rv := range retList {
+		ret := rv.(map[string]interface{})
+		symbol := ret["symbol"].(string)
+		if action == actionPartial || action == actionInsert {
+			quote := bm.makeQuote(ret)
+			bm.insertQuote(symbol, quote)
+		}
 	}
 }
 
-func (bm *Bitmex) handleQuote(action string, data map[string]interface{}) {
-	symbol := data["symbol"].(string)
-	d := data["data"].([]map[string]interface{})
-
-	if action == actionPartial || action == actionInsert {
-		quoteList := bm.makeQuote(d)
-		bm.insertQuoteList(symbol, quoteList)
-	}
-}
-
-func (bm *Bitmex) handleOrder(action string, data map[string]interface{}) {
-	symbol := data["symbol"].(string)
-	d := data["data"].([]map[string]interface{})
-
-	if action == actionPartial || action == actionInsert {
-		orderList := bm.makeOrder(d)
-		bm.insertOrderList(symbol, orderList)
-	} else if action == actionUpdate {
-		for _, item := range d {
-			index, order := bm.findOrderItemByKeys(symbol, item)
+func (bm *Bitmex) HandleOrder(action string, data map[string]interface{}) {
+	retList := data["data"].([]interface{})
+	for _, rv := range retList {
+		ret := rv.(map[string]interface{})
+		symbol := ret["symbol"].(string)
+		if action == actionPartial || action == actionInsert {
+			order := bm.makeOrder(ret)
+			bm.insertOrder(symbol, order)
+		} else if action == actionUpdate {
+			index, order := bm.findOrderItemByKeys(symbol, ret)
 			if order == nil {
 				return
 			}
-			bm.updateOrder(order, item)
+			bm.updateOrder(order, ret)
 			// Remove cancelled / filled orders
 			bm.cleanOrder(index, order)
-		}
-	} else if action == actionDelete {
-		for _, item := range d {
-			index, order := bm.findOrderItemByKeys(symbol, item)
+		} else if action == actionDelete {
+			index, order := bm.findOrderItemByKeys(symbol, ret)
 			if order == nil {
 				return
 			}
@@ -114,24 +117,25 @@ func (bm *Bitmex) handleOrder(action string, data map[string]interface{}) {
 	}
 }
 
-func (bm *Bitmex) handlePosition(action string, data map[string]interface{}) {
-	symbol := data["symbol"].(string)
-	d := data["data"].([]map[string]interface{})
-
-	if action == actionPartial || action == actionInsert {
-		posList := bm.makePosition(d)
-		bm.insertPositionList(symbol, posList)
-	} else if action == actionUpdate {
-		for _, item := range d {
-			_, pos := bm.findPositionItemByKeys(symbol, item)
+func (bm *Bitmex) HandlePosition(action string, data map[string]interface{}) {
+	retList := data["data"].([]interface{})
+	for _, rv := range retList {
+		ret := rv.(map[string]interface{})
+		symbol := ret["symbol"].(string)
+		if action == actionPartial || action == actionInsert {
+			pos := bm.makePosition(ret)
+			bm.insertPosition(symbol, pos)
+		} else if action == actionUpdate {
+			_, pos := bm.findPositionItemByKeys(symbol, ret)
 			if pos == nil {
 				return
 			}
-			bm.updatePosition(pos, item)
-		}
-	} else if action == actionDelete {
-		for _, item := range d {
-			index, _ := bm.findPositionItemByKeys(symbol, item)
+			bm.updatePosition(pos, ret)
+		} else if action == actionDelete {
+			index, pos := bm.findPositionItemByKeys(symbol, ret)
+			if pos == nil {
+				return
+			}
 			bm.positionData[symbol] = append(
 				bm.positionData[symbol][:index], bm.positionData[symbol][index+1:]...)
 		}

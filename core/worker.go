@@ -30,7 +30,7 @@ func (w *Worker) StartWorker(app *TraedApp) {
 		case <-w.ctx.Done():
 			return
 		case data := <-w.workerCh:
-			if data.Type != Message || data.Type != ErrorMsg {
+			if data.Type != Message && data.Type != ErrorMsg {
 				continue
 			}
 			w.msgHandler.HandleMessage(data)

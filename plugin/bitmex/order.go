@@ -126,6 +126,10 @@ func (bm *Bitmex) create_order(
 // }
 
 func (bm *Bitmex) makeSingleOrder(data map[string]interface{}) interface{} {
+	return bm.makeOrder(data)
+}
+
+func (bm *Bitmex) makeOrder(data map[string]interface{}) *core.Order {
 	order := new(core.Order)
 	order.Symbol = data["symbol"].(string)
 	order.OrdStatus = data["ordStatus"].(string)
@@ -145,21 +149,12 @@ func (bm *Bitmex) makeSingleOrder(data map[string]interface{}) interface{} {
 	return order
 }
 
-func (bm *Bitmex) makeOrder(data []map[string]interface{}) []*core.Order {
-	resp := make([]*core.Order, 0, len(data))
-	for _, item := range data {
-		resp = append(resp, bm.makeSingleOrder(item).(*core.Order))
-	}
-	return resp
-}
-
-func (bm *Bitmex) insertOrderList(symbol string, orderList []*core.Order) {
-	updateLength := len(orderList)
+func (bm *Bitmex) insertOrder(symbol string, order *core.Order) {
 	length := len(bm.orderData[symbol])
-	if length+updateLength >= dataLength {
-		bm.orderData[symbol] = bm.orderData[symbol][length+updateLength-dataLength:]
+	if length >= dataLength {
+		bm.orderData[symbol] = bm.orderData[symbol][length-dataLength:]
 	}
-	bm.orderData[symbol] = append(bm.orderData[symbol], orderList...)
+	bm.orderData[symbol] = append(bm.orderData[symbol], order)
 }
 
 func (bm *Bitmex) findOrderItemByKeys(
