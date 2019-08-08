@@ -1,6 +1,7 @@
 package bitmex
 
 import (
+	"sync/atomic"
 	"time"
 
 	"github.com/orcaman/concurrent-map"
@@ -9,14 +10,16 @@ import (
 )
 
 type trade struct {
-	tradeKeys     map[string][]string
-	tradeData     cmap.ConcurrentMap
+	tradeKeys map[string][]string
+	tradeData cmap.ConcurrentMap
+	isUpdate  int32
 }
 
 func newTrade(symbols []string) *trade {
 	t := new(trade)
 	t.tradeKeys = make(map[string][]string)
 	t.tradeData = cmap.New()
+	t.isUpdate = 0
 	for _, symbol := range symbols {
 		t.tradeKeys[symbol] = wsTradeKeys
 		t.tradeData.Set(symbol, make([]*core.Trade, 0, dataLength))
@@ -38,6 +41,7 @@ func (td *trade) insertTrade(symbol string, trade *core.Trade) {
 	}
 	tradeList = append(tradeList, trade)
 	td.tradeData.Set(symbol, tradeList)
+	atomic.StoreInt32(&td.isUpdate, 1)
 }
 
 func (td *trade) makeTrade(data map[string]interface{}) *core.Trade {

@@ -1,20 +1,24 @@
 package bitmex
 
 import (
+	"sync/atomic"
+
 	"github.com/orcaman/concurrent-map"
 
 	"github.com/EricQAQ/Traed/core"
 )
 
 type position struct {
-	positionKeys     map[string][]string
-	positionData     cmap.ConcurrentMap
+	positionKeys map[string][]string
+	positionData cmap.ConcurrentMap
+	isUpdate     int32
 }
 
 func newPosition(symbols []string) *position {
 	pos := new(position)
 	pos.positionKeys = make(map[string][]string)
 	pos.positionData = cmap.New()
+	pos.isUpdate = 0
 	for _, symbol := range symbols {
 		pos.positionKeys[symbol] = wsPositionKeys
 		pos.positionData.Set(symbol, make([]*core.Position, 0, dataLength))
@@ -64,6 +68,7 @@ func (pos *position) insertPosition(symbol string, position *core.Position) {
 	}
 	posList = append(posList, position)
 	pos.positionData.Set(symbol, posList)
+	atomic.StoreInt32(&pos.isUpdate, 1)
 }
 
 func (pos *position) findPositionItemByKeys(
@@ -135,6 +140,7 @@ func (pos *position) updatePosition(symbol string, data map[string]interface{}) 
 			position.SellAvailable = position.SellAmount - position.OpenOrderSellQty
 		}
 	}
+	atomic.StoreInt32(&pos.isUpdate, 1)
 }
 
 func (pos *position) deletePosition(symbol string, data map[string]interface{}) {
@@ -145,4 +151,5 @@ func (pos *position) deletePosition(symbol string, data map[string]interface{}) 
 	posList := pos.getPositionList(symbol)
 	posList = append(posList[:index], posList[index+1:]...)
 	pos.positionData.Set(symbol, posList)
+	atomic.StoreInt32(&pos.isUpdate, 1)
 }

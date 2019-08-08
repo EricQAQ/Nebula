@@ -32,11 +32,11 @@ type OrderAPI interface {
 }
 
 type ExportAPI interface {
-	GetTick(symbol string) *Tick
-	GetQuote(symbol string) *Quote
-	GetTrade(symbol string) *Trade
-	GetOrders(symbol string) []*Order
-	GetPosition(symbol string) []*Position
+	GetTick(symbol string) (*Tick, bool)
+	GetQuote(symbol string) (*Quote, bool)
+	GetTrade(symbol string) (*Trade, bool)
+	GetOrders(symbol string) ([]*Order, bool)
+	GetPosition(symbol string) ([]*Position, bool)
 }
 
 type ExchangeAPI interface {

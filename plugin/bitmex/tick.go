@@ -1,6 +1,7 @@
 package bitmex
 
 import (
+	"sync/atomic"
 	"time"
 
 	"github.com/orcaman/concurrent-map"
@@ -9,14 +10,16 @@ import (
 )
 
 type ticker struct {
-	tickKeys     map[string][]string
-	tickData     cmap.ConcurrentMap
+	tickKeys map[string][]string
+	tickData cmap.ConcurrentMap
+	isUpdate int32
 }
 
 func newTicker(symbols []string) *ticker {
 	t := new(ticker)
 	t.tickKeys = make(map[string][]string)
 	t.tickData = cmap.New()
+	t.isUpdate = 0
 	for _, symbol := range symbols {
 		t.tickKeys[symbol] = wsInstrumentKeys
 		t.tickData.Set(symbol, make([]*core.Tick, 0, dataLength))
@@ -38,6 +41,7 @@ func (t *ticker) insertTick(symbol string, tick *core.Tick) {
 	}
 	tickList = append(tickList, tick)
 	t.tickData.Set(symbol, tickList)
+	atomic.StoreInt32(&t.isUpdate, 1)
 }
 
 func (t *ticker) updateTick(symbol string, data map[string]interface{}) {
@@ -64,6 +68,7 @@ func (t *ticker) updateTick(symbol string, data map[string]interface{}) {
 			tickList[length-1].Timestamp, _ = time.Parse(time.RFC3339, value.(string))
 		}
 	}
+	atomic.StoreInt32(&t.isUpdate, 1)
 }
 
 func (t *ticker) deleteLastTick(symbol string) {
@@ -74,6 +79,7 @@ func (t *ticker) deleteLastTick(symbol string) {
 	}
 	tickList = tickList[:length-2]
 	t.tickData.Set(symbol, tickList)
+	atomic.StoreInt32(&t.isUpdate, 1)
 }
 
 func (t *ticker) makeInstrument(data map[string]interface{}) *core.Tick {

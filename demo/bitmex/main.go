@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"flag"
-	"time"
 
 	"github.com/EricQAQ/Traed/core"
 	"github.com/EricQAQ/Traed/plugin/bitmex"
@@ -29,14 +28,12 @@ func main() {
 		os.Exit(0)
 	}
 	go func() {
-		var ts time.Time
 		for {
-			tick := bm.GetTick("XBTUSD")
+			tick, isUpdate := bm.GetTick("XBTUSD")
 			if tick == nil {
 				continue
 			}
-			if tick.Timestamp.After(ts) {
-				ts = tick.Timestamp
+			if isUpdate {
 				log.Infof(
 					"Receive tick data: symbol: %s, last: %f, buy: %f, sell: %f, high: %f, low: %f, vol: %f, time: %s", tick.Symbol, tick.Last, tick.Buy, tick.Sell, tick.High, tick.Low, tick.Vol, tick.Timestamp)
 			}
