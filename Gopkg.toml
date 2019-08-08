@@ -22,6 +22,10 @@
   name = "github.com/parnurzeal/gorequest"
   branch = "master"
 
+[[constraint]]
+  name = "github.com/orcaman/concurrent-map"
+  branch = "master"
+
 [prune]
   go-tests = true
   unused-packages = true

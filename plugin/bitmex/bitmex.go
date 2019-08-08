@@ -5,6 +5,7 @@ import (
 
 	"github.com/EricQAQ/Traed/config"
 	"github.com/EricQAQ/Traed/core"
+	"github.com/orcaman/concurrent-map"
 )
 
 const (
@@ -27,11 +28,11 @@ type Bitmex struct {
 	orderKeys    map[string][]string
 	positionKeys map[string][]string
 
-	tickData     map[string][]*core.Tick
-	tradeData    map[string][]*core.Trade
-	quoteData    map[string][]*core.Quote
-	orderData    map[string][]*core.Order
-	positionData map[string][]*core.Position
+	tickData     cmap.ConcurrentMap
+	tradeData    cmap.ConcurrentMap
+	quoteData    cmap.ConcurrentMap
+	orderData    cmap.ConcurrentMap
+	positionData cmap.ConcurrentMap
 }
 
 func CreateBitmex(
@@ -52,11 +53,11 @@ func CreateBitmex(
 	bm.orderKeys = make(map[string][]string)
 	bm.positionKeys = make(map[string][]string)
 
-	bm.tickData = make(map[string][]*core.Tick)
-	bm.tradeData = make(map[string][]*core.Trade)
-	bm.quoteData = make(map[string][]*core.Quote)
-	bm.orderData = make(map[string][]*core.Order)
-	bm.positionData = make(map[string][]*core.Position)
+	bm.tickData = cmap.New()
+	bm.tradeData = cmap.New()
+	bm.quoteData = cmap.New()
+	bm.orderData = cmap.New()
+	bm.positionData = cmap.New()
 	for _, symbol := range exchangeConfig.Symbols {
 		bm.tickKeys[symbol] = wsInstrumentKeys
 		bm.tradeKeys[symbol] = wsTradeKeys
@@ -64,11 +65,11 @@ func CreateBitmex(
 		bm.orderKeys[symbol] = wsOrderKeys
 		bm.positionKeys[symbol] = wsPositionKeys
 
-		bm.tickData[symbol] = make([]*core.Tick, 0, dataLength)
-		bm.tradeData[symbol] = make([]*core.Trade, 0, dataLength)
-		bm.quoteData[symbol] = make([]*core.Quote, 0, dataLength)
-		bm.orderData[symbol] = make([]*core.Order, 0, dataLength)
-		bm.positionData[symbol] = make([]*core.Position, 0, dataLength)
+		bm.tickData.Set(symbol, make([]*core.Tick, 0, dataLength))
+		bm.tradeData.Set(symbol, make([]*core.Trade, 0, dataLength))
+		bm.quoteData.Set(symbol, make([]*core.Quote, 0, dataLength))
+		bm.orderData.Set(symbol, make([]*core.Order, 0, dataLength))
+		bm.positionData.Set(symbol, make([]*core.Position, 0, dataLength))
 	}
 	return bm
 }

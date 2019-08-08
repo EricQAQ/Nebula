@@ -32,7 +32,7 @@ retry = 5
 # Log file path, if the value is "", it means output to stdout
 log-file = ""
 # Log level, ONLY in "debug", "info", "warn", "error", "fatal"
-log-level = "debug"
+log-level = "info"
 # Log format, ONLY in "json", "text", "console", "highlight"
 log-format = "text"
 # Is log rotate enabled.

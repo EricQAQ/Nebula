@@ -43,6 +43,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:8368165a1d56fb9c296eb90ed90c51cc0ce563d73c911d3a4c7cb2faa5fc544e"
+  name = "github.com/orcaman/concurrent-map"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2693aad1ed7517c2bb5b3a42cb8fde88b941d89d"
+
+[[projects]]
+  branch = "master"
   digest = "1:d776f3e95774a8719f2e57fabbbb33103035fe072dcf6f1864f33abd17b753e5"
   name = "github.com/parnurzeal/gorequest"
   packages = ["."]
@@ -124,6 +132,7 @@
     "github.com/BurntSushi/toml",
     "github.com/gorilla/websocket",
     "github.com/juju/errors",
+    "github.com/orcaman/concurrent-map",
     "github.com/parnurzeal/gorequest",
     "github.com/sirupsen/logrus",
     "gopkg.in/natefinch/lumberjack.v2",

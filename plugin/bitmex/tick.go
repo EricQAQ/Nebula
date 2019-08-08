@@ -55,9 +55,12 @@ func (bm *Bitmex) updateTick(tick *core.Tick, data map[string]interface{}) {
 }
 
 func (bm *Bitmex) insertTick(symbol string, tick *core.Tick) {
-	length := len(bm.tickData[symbol])
+	data, _ := bm.tickData.Get(symbol)
+	tickList := data.([]*core.Tick)
+	length := len(tickList)
 	if length >= dataLength {
-		bm.tickData[symbol] = bm.tickData[symbol][length-dataLength:]
+		tickList = tickList[length-dataLength:]
 	}
-	bm.tickData[symbol] = append(bm.tickData[symbol], tick)
+	tickList = append(tickList, tick)
+	bm.tickData.Set(symbol, tickList)
 }

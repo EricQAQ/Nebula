@@ -5,22 +5,24 @@ import (
 )
 
 func (bm *Bitmex) GetTick(symbol string) (*core.Tick, error) {
-	tickDataList, ok := bm.tickData[symbol]
+	data, ok := bm.tickData.Get(symbol)
 	if !ok {
 		return nil, SymbolErr
 	}
-	length := len(tickDataList)
+	tickList := data.([]*core.Tick)
+	length := len(tickList)
 	if length == 0 {
 		return nil, nil
 	}
-	return tickDataList[length-1], nil
+	return tickList[length-1], nil
 }
 
 func (bm *Bitmex) GetQuote(symbol string) (*core.Quote, error) {
-	quoteList, ok := bm.quoteData[symbol]
+	data, ok := bm.quoteData.Get(symbol)
 	if !ok {
 		return nil, SymbolErr
 	}
+	quoteList := data.([]*core.Quote)
 	length := len(quoteList)
 	if length == 0 {
 		return nil, nil
@@ -29,10 +31,11 @@ func (bm *Bitmex) GetQuote(symbol string) (*core.Quote, error) {
 }
 
 func (bm *Bitmex) GetTrade(symbol string) (*core.Trade, error) {
-	tradeList, ok := bm.tradeData[symbol]
+	data, ok := bm.tradeData.Get(symbol)
 	if !ok {
 		return nil, SymbolErr
 	}
+	tradeList := data.([]*core.Trade)
 	length := len(tradeList)
 	if length == 0 {
 		return nil, nil
@@ -41,10 +44,11 @@ func (bm *Bitmex) GetTrade(symbol string) (*core.Trade, error) {
 }
 
 func (bm *Bitmex) GetOrders(symbol string) ([]*core.Order, error) {
-	orderList, ok := bm.orderData[symbol]
+	data, ok := bm.orderData.Get(symbol)
 	if !ok {
 		return nil, SymbolErr
 	}
+	orderList := data.([]*core.Order)
 	resp := make([]*core.Order, 0, len(orderList))
 	// filter orders
 	for _, order := range orderList {
@@ -56,9 +60,10 @@ func (bm *Bitmex) GetOrders(symbol string) ([]*core.Order, error) {
 }
 
 func (bm *Bitmex) GetPosition(symbol string) ([]*core.Position, error) {
-	positionList, ok := bm.positionData[symbol]
+	data, ok := bm.positionData.Get(symbol)
 	if !ok {
 		return nil, SymbolErr
 	}
+	positionList := data.([]*core.Position)
 	return positionList, nil
 }

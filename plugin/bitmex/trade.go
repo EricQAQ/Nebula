@@ -29,9 +29,12 @@ func (bm *Bitmex) makeTrade(data map[string]interface{}) *core.Trade {
 }
 
 func (bm *Bitmex) insertTrade(symbol string, trade *core.Trade) {
-	length := len(bm.tradeData[symbol])
+	data, _ := bm.tradeData.Get(symbol)
+	tradeList := data.([]*core.Trade)
+	length := len(tradeList)
 	if length >= dataLength {
-		bm.tradeData[symbol] = bm.tradeData[symbol][length-dataLength:]
+		tradeList = tradeList[length-dataLength:]
 	}
-	bm.tradeData[symbol] = append(bm.tradeData[symbol], trade)
+	tradeList = append(tradeList, trade)
+	bm.tradeData.Set(symbol, tradeList)
 }

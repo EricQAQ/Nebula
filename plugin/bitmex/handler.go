@@ -50,18 +50,24 @@ func (bm *Bitmex) HandleInstrument(action string, data map[string]interface{}) {
 		if action == actionPartial || action == actionInsert {
 			tick := bm.makeInstrument(ret)
 			bm.insertTick(symbol, tick)
+			log.Infof("Insert tick")
 		} else if action == actionUpdate {
-			length := len(bm.tickData[symbol])
+			data, _ := bm.tickData.Get(symbol)
+			dl := data.([]*core.Tick)
+			length := len(dl)
 			if length <= 0 {
 				return
 			}
-			bm.updateTick(bm.tickData[symbol][length-1], ret)
+			bm.updateTick(dl[length-1], ret)
+			log.Infof("Update tick")
 		} else if action == actionDelete {
-			length := len(bm.tickData[symbol])
+			data, _ := bm.tickData.Get(symbol)
+			dl := data.([]*core.Tick)
+			length := len(dl)
 			if length <= 0 {
 				return
 			}
-			bm.tickData[symbol] = bm.tickData[symbol][:length-2]
+			dl = dl[:length-2]
 		}
 	}
 }
@@ -111,8 +117,9 @@ func (bm *Bitmex) HandleOrder(action string, data map[string]interface{}) {
 			if order == nil {
 				return
 			}
-			bm.orderData[symbol] = append(
-				bm.orderData[symbol][:index], bm.orderData[symbol][index+1:]...)
+			data, _ := bm.orderData.Get(symbol)
+			dl := data.([]*core.Order)
+			dl = append(dl[:index], dl[index+1:]...)
 		}
 	}
 }
@@ -136,8 +143,9 @@ func (bm *Bitmex) HandlePosition(action string, data map[string]interface{}) {
 			if pos == nil {
 				return
 			}
-			bm.positionData[symbol] = append(
-				bm.positionData[symbol][:index], bm.positionData[symbol][index+1:]...)
+			data, _ := bm.positionData.Get(symbol)
+			dl := data.([]*core.Position)
+			dl = append(dl[:index], dl[index+1:]...)
 		}
 	}
 }

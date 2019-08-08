@@ -150,16 +150,21 @@ func (bm *Bitmex) makeOrder(data map[string]interface{}) *core.Order {
 }
 
 func (bm *Bitmex) insertOrder(symbol string, order *core.Order) {
-	length := len(bm.orderData[symbol])
+	data, _ := bm.orderData.Get(symbol)
+	orderList := data.([]*core.Order)
+	length := len(orderList)
 	if length >= dataLength {
-		bm.orderData[symbol] = bm.orderData[symbol][length-dataLength:]
+		orderList = orderList[length-dataLength:]
 	}
-	bm.orderData[symbol] = append(bm.orderData[symbol], order)
+	orderList = append(orderList, order)
+	bm.orderData.Set(symbol, orderList)
 }
 
 func (bm *Bitmex) findOrderItemByKeys(
 	symbol string, updateData map[string]interface{}) (int, *core.Order) {
-	for index, val := range bm.orderData[symbol] {
+	data, _ := bm.orderData.Get(symbol)
+	orderList := data.([]*core.Order)
+	for index, val := range orderList {
 		if val.OrderID == updateData["orderID"].(string) {
 			return index, val
 		}
@@ -198,8 +203,9 @@ func (bm *Bitmex) needDeleteOrder(order *core.Order) bool {
 
 func (bm *Bitmex) cleanOrder(index int, order *core.Order) {
 	if bm.needDeleteOrder(order) {
-		bm.orderData[order.Symbol] = append(
-			bm.orderData[order.Symbol][:index],
-			bm.orderData[order.Symbol][index+1:]...)
+		data, _ := bm.orderData.Get(order.Symbol)
+		orderList := data.([]*core.Order)
+		orderList = append( orderList[:index], orderList[index+1:]...)
+		bm.orderData.Set(order.Symbol, orderList)
 	}
 }

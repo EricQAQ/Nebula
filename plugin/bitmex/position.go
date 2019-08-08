@@ -33,16 +33,21 @@ func (bm *Bitmex) makePosition(data map[string]interface{}) *core.Position {
 }
 
 func (bm *Bitmex) insertPosition(symbol string, position *core.Position) {
-	length := len(bm.positionData[symbol])
+	data, _ := bm.positionData.Get(symbol)
+	posList := data.([]*core.Position)
+	length := len(posList)
 	if length >= dataLength {
-		bm.positionData[symbol] = bm.positionData[symbol][length-dataLength:]
+		posList = posList[length-dataLength:]
 	}
-	bm.positionData[symbol] = append(bm.positionData[symbol], position)
+	posList = append(posList, position)
+	bm.positionData.Set(symbol, posList)
 }
 
 func (bm *Bitmex) findPositionItemByKeys(
 	symbol string, updateData map[string]interface{}) (int, *core.Position) {
-	for index, val := range bm.positionData[symbol] {
+	data, _ := bm.positionData.Get(symbol)
+	posList := data.([]*core.Position)
+	for index, val := range posList {
 		if val.Account == updateData["account"].(float32) &&
 			val.Symbol == updateData["symbol"].(string) &&
 			val.Currency == updateData["currency"].(string) {

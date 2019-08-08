@@ -29,9 +29,12 @@ func (bm *Bitmex) makeQuote(data map[string]interface{}) *core.Quote {
 }
 
 func (bm *Bitmex) insertQuote(symbol string, quote *core.Quote) {
-	length := len(bm.quoteData[symbol])
+	data, _ := bm.quoteData.Get(symbol)
+	quoteList := data.([]*core.Quote)
+	length := len(quoteList)
 	if length >= dataLength {
-		bm.quoteData[symbol] = bm.quoteData[symbol][length-dataLength:]
+		quoteList = quoteList[length-dataLength:]
 	}
-	bm.quoteData[symbol] = append(bm.quoteData[symbol], quote)
+	quoteList = append(quoteList, quote)
+	bm.quoteData.Set(symbol, quoteList)
 }
