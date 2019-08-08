@@ -34,8 +34,22 @@ func main() {
 				continue
 			}
 			if isUpdate {
-				log.Infof(
-					"Receive tick data: symbol: %s, last: %f, buy: %f, sell: %f, high: %f, low: %f, vol: %f, time: %s", tick.Symbol, tick.Last, tick.Buy, tick.Sell, tick.High, tick.Low, tick.Vol, tick.Timestamp)
+				log.Infof(`
+Receive tick data:
+symbol: %s, last: %f, buy: %f, sell: %f, high: %f, low: %f, vol: %f, time: %s`,
+					tick.Symbol, tick.Last, tick.Buy, tick.Sell, tick.High,
+					tick.Low, tick.Vol, tick.Timestamp)
+			}
+			positions, isUpdate := bm.GetPosition("XBTUSD")
+			if isUpdate {
+				for _, pos := range positions {
+					log.Infof(`
+Position: leverage:%f,
+sell_amount:%f, sell_avaiable:%f, sell_price_avg:%f, sell_profit_real:%f
+buy_amount:%f, buy_avaiable:%f, buy_price_avg:%f, buy_profit_real:%f`,
+						pos.LeverRate, pos.SellAmount, pos.SellAvailable, pos.SellPriceAvg, pos.SellProfitReal,
+						pos.BuyAmount, pos.BuyAvailable, pos.BuyPriceAvg, pos.BuyProfitReal)
+				}
 			}
 		}
 	}()
