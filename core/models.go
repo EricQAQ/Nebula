@@ -51,11 +51,11 @@ type Quote struct {
 type Tick struct {
 	Symbol    string
 	Last      float64
-	Buy       float64
-	Sell      float64
-	High      float64
-	Low       float64
-	Vol       float64
+	Buy       float64 // 买价
+	Sell      float64 // 卖价
+	High      float64 // 最高价
+	Low       float64 // 最低价
+	Vol       float64 // 量能
 	Timestamp time.Time
 }
 

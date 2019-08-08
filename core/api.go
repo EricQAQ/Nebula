@@ -27,8 +27,16 @@ type OrderAPI interface {
 	LimitStopSell(symbol string, stopPx float64, price float64, quantity float32) (*Order, error)
 	MarketStopBuy(symbol string, stopPx float64, quantity float32) (*Order, error)
 	MarketStopSell(symbol string, stopPx float64, quantity float32) (*Order, error)
-	LimitIfTouchedBuy(symbol string, stopPx float64, price float64, quantity float32)  (*Order, error)
-	LimitIfTouchedSell(symbol string, stopPx float64, price float64, quantity float32)  (*Order, error)
+	LimitIfTouchedBuy(symbol string, stopPx float64, price float64, quantity float32) (*Order, error)
+	LimitIfTouchedSell(symbol string, stopPx float64, price float64, quantity float32) (*Order, error)
+}
+
+type ExportAPI interface {
+	GetTick(symbol string) (*Tick, error)
+	GetQuote(symbol string) (*Quote, error)
+	GetTrade(symbol string) (*Trade, error)
+	GetOrders(symbol string) ([]*Order, error)
+	GetPosition(symbol string) ([]*Position, error)
 }
 
 type ExchangeAPI interface {
@@ -38,4 +46,5 @@ type ExchangeAPI interface {
 	HandleMessage(ParsedData)
 
 	OrderAPI
+	ExportAPI
 }

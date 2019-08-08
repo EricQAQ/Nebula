@@ -194,8 +194,15 @@ func (bm *Bitmex) updateOrder(order *core.Order, data map[string]interface{}) {
 	}
 }
 
-func (bm *Bitmex) cleanOrder(index int, order *core.Order) {
+func (bm *Bitmex) needDeleteOrder(order *core.Order) bool {
 	if orderStatusMap[order.OrdStatus] != "open" {
+		return true
+	}
+	return false
+}
+
+func (bm *Bitmex) cleanOrder(index int, order *core.Order) {
+	if bm.needDeleteOrder(order) {
 		bm.orderData[order.Symbol] = append(
 			bm.orderData[order.Symbol][:index],
 			bm.orderData[order.Symbol][index+1:]...)
