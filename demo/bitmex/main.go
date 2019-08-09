@@ -36,8 +36,8 @@ func main() {
 			if isUpdate {
 				log.Infof(`
 Receive tick data:
-symbol: %s, last: %f, buy: %f, sell: %f, high: %f, low: %f, vol: %f, time: %s`,
-					tick.Symbol, tick.Last, tick.Buy, tick.Sell, tick.High,
+symbol: %s, open: %f, close: %f, high: %f, low: %f, vol: %f, time: %s`,
+					tick.Symbol, tick.Open, tick.Close, tick.High,
 					tick.Low, tick.Vol, tick.Timestamp)
 			}
 			positions, isUpdate := bm.GetPosition("XBTUSD")

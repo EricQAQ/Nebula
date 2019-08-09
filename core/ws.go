@@ -76,7 +76,7 @@ func (ws *WsClient) retryReconnect() error {
 			log.Errorf("[Traed WsClient(%s)] failed to reconnect: %s", ws.exchangeName, err.Error())
 			time.Sleep(time.Second * 1)
 		} else {
-			break
+			return nil
 		}
 	}
 	return RetryMaxErr
@@ -107,8 +107,10 @@ func (ws *WsClient) ReadMsg() error {
 			if err != nil {
 				log.Warnf("[Traed WsClient(%s)] receive message error: %s, reconnect.", ws.exchangeName, err.Error())
 				if err = ws.retryReconnect(); err != nil {
+					log.Errorf("[Traed WsClient(%s)] reconnect failed: %s", ws.exchangeName, err.Error())
 					return err
 				}
+				continue
 			}
 			data, err := ws.exchange.Parse(msg)
 			if err != nil {

@@ -15,8 +15,8 @@ const (
 
 type Kline struct {
 	Symbol    string
-	Start     float64
-	End       float64
+	Open      float64
+	Close     float64
 	High      float64
 	Low       float64
 	Vol       float64
@@ -53,8 +53,8 @@ func (km *KlineManager) getKline(interval int) []*Kline {
 func (kv *KlineManager) newKline(tick *core.Tick) *Kline {
 	kline := new(Kline)
 	kline.Symbol = tick.Symbol
-	kline.Start = tick.Last
-	kline.End = tick.Last
+	kline.Open = tick.Open
+	kline.Close = tick.Close
 	kline.High = tick.High
 	kline.Low = tick.Low
 	kline.Vol = tick.Vol
@@ -63,9 +63,10 @@ func (kv *KlineManager) newKline(tick *core.Tick) *Kline {
 }
 
 func (kv *KlineManager) updateKline(kline *Kline, tick *core.Tick) {
+	kline.Close = tick.Close
 	kline.High = maxFloat(kline.High, tick.High)
 	kline.Low = minFloat(kline.Low, tick.Low)
-	kline.End = tick.Last
+	kline.Vol += tick.Vol
 	kline.Timestamp = tick.Timestamp
 }
 

@@ -7,12 +7,12 @@ import (
 )
 
 func (bm *Bitmex) GetTick(symbol string) (*core.Tick, bool) {
-	tickList := bm.tickData.getTickList(symbol)
+	tickList := bm.tickData.GetTickerList(symbol)
 	length := len(tickList)
 	if length == 0 {
 		return nil, false
 	}
-	isUpdate := atomic.CompareAndSwapInt32(&bm.tickData.isUpdate, 1, 0)
+	isUpdate := bm.tickData.IsUpdate()
 	return tickList[length-1], isUpdate
 }
 

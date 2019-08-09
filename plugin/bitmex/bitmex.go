@@ -5,6 +5,7 @@ import (
 
 	"github.com/EricQAQ/Traed/config"
 	"github.com/EricQAQ/Traed/core"
+	"github.com/EricQAQ/Traed/core/kline"
 )
 
 const (
@@ -21,10 +22,10 @@ type Bitmex struct {
 	auth      *BitmexAuth
 	subscribe *BitmexSubscribe
 
-	tickData *ticker
-	tradeData *trade
-	quoteData *quote
-	orderData *order
+	tickData     *kline.Ticker
+	tradeData    *trade
+	quoteData    *quote
+	orderData    *order
 	positionData *position
 }
 
@@ -40,7 +41,7 @@ func CreateBitmex(
 	bm.auth = NewBitmexAuth(bm.APIKey, bm.APISecret, 24)
 	bm.subscribe = NewBitmexSubscribe(exchangeConfig.Symbols, exchangeConfig.Topic...)
 
-	bm.tickData = newTicker(exchangeConfig.Symbols)
+	bm.tickData = kline.NewTicker(exchangeConfig.Symbols)
 	bm.tradeData = newTrade(exchangeConfig.Symbols)
 	bm.quoteData = newQuote(exchangeConfig.Symbols)
 	bm.orderData = newOrder(exchangeConfig.Symbols)

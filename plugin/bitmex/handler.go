@@ -41,23 +41,6 @@ func (bm *Bitmex) HandleMessage(data core.ParsedData) {
 	bm.callByTableName(table, action, data.Data)
 }
 
-func (bm *Bitmex) HandleInstrument(action string, data map[string]interface{}) {
-	retList := data["data"].([]interface{})
-	for _, rv := range retList {
-		ret := rv.(map[string]interface{})
-		symbol := ret["symbol"].(string)
-
-		if action == actionPartial || action == actionInsert {
-			tick := bm.tickData.makeInstrument(ret)
-			bm.tickData.insertTick(symbol, tick)
-		} else if action == actionUpdate {
-			bm.tickData.updateTick(symbol, ret)
-		} else if action == actionDelete {
-			bm.tickData.deleteLastTick(symbol)
-		}
-	}
-}
-
 func (bm *Bitmex) HandleTrade(action string, data map[string]interface{}) {
 	retList := data["data"].([]interface{})
 	for _, rv := range retList {
@@ -66,6 +49,7 @@ func (bm *Bitmex) HandleTrade(action string, data map[string]interface{}) {
 		if action == actionPartial || action == actionInsert {
 			trade := bm.tradeData.makeTrade(ret)
 			bm.tradeData.insertTrade(symbol, trade)
+			bm.tickData.UpdateTicker(symbol, trade)
 		}
 	}
 }
