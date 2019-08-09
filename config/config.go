@@ -16,9 +16,10 @@ const (
 var ConfigErr = err.CreateTraedError(ConfigErrCode, "Invalid config: %s", nil)
 
 type TraedConfig struct {
-	Http        *HttpConfig                `toml:"http" json:"http"`
-	ExchangeMap map[string]*ExchangeConfig `toml:"exchange" json:"exchange"`
-	Websocket   *WebsocketConfig           `toml:"websocket" json:"websocket"`
+	KlineInterval []int                      `toml:"k-line-interval" json:"k_line_interval"`
+	Http          *HttpConfig                `toml:"http" json:"http"`
+	ExchangeMap   map[string]*ExchangeConfig `toml:"exchange" json:"exchange"`
+	Websocket     *WebsocketConfig           `toml:"websocket" json:"websocket"`
 
 	// Log settings
 	Log *LogConfig `toml:"log" json:"log"`
@@ -70,6 +71,8 @@ var (
 func GetTraedConfig() *TraedConfig {
 	once.Do(func() {
 		globalConfig = new(TraedConfig)
+		globalConfig.KlineInterval = []int{
+			60, 180, 300, 900, 1800, 3600, 14400, 86400, 604800}
 		globalConfig.Http = &HttpConfig{
 			Proxy:   "",
 			Timeout: 1000,
@@ -100,4 +103,3 @@ func (c *TraedConfig) LoadFromToml(configFile string) error {
 	}
 	return errors.Trace(err)
 }
-

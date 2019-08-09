@@ -1,17 +1,15 @@
-package kline
+package core
 
 import (
 	"sync/atomic"
 	"time"
 
 	"github.com/orcaman/concurrent-map"
-
-	"github.com/EricQAQ/Traed/core"
 )
 
 const (
-	tickInterval = 5 // 5ms
-	tickLength = 4096
+	tickInterval = 500 // 500ms
+	tickLength   = 4096
 )
 
 type Ticker struct {
@@ -26,19 +24,19 @@ func NewTicker(symbols []string) *Ticker {
 	t.isUpdate = 0
 	t.interval = time.Duration(tickInterval) * time.Millisecond
 	for _, symbol := range symbols {
-		t.tickData.Set(symbol, make([]*core.Tick, 0, tickLength))
+		t.tickData.Set(symbol, make([]*Tick, 0, tickLength))
 	}
 	return t
 }
 
-func (t *Ticker) GetTickerList(symbol string) []*core.Tick {
+func (t *Ticker) GetTickerList(symbol string) []*Tick {
 	data, _ := t.tickData.Get(symbol)
-	tickList := data.([]*core.Tick)
+	tickList := data.([]*Tick)
 	return tickList
 }
 
-func (t *Ticker) makeTick(trade *core.Trade) *core.Tick {
-	tick := new(core.Tick)
+func (t *Ticker) makeTick(trade *Trade) *Tick {
+	tick := new(Tick)
 	tick.Symbol = trade.Symbol
 	tick.Open = trade.Price
 	tick.Close = trade.Price
@@ -49,39 +47,41 @@ func (t *Ticker) makeTick(trade *core.Trade) *core.Tick {
 	return tick
 }
 
-func (t *Ticker) appendTick(symbol string, tick *core.Tick) {
+func (t *Ticker) appendTick(symbol string, tick *Tick, tCh chan Tick) {
 	tickList := t.GetTickerList(symbol)
 	if len(tickList) >= tickLength {
 		tickList = tickList[1:]
 	}
 	tickList = append(tickList, tick)
 	t.tickData.Set(symbol, tickList)
+	tCh <- *tick
+	t.SetUpdateFlag()
 }
 
-func (t *Ticker) updateTick(tick, newTick *core.Tick) {
+func (t *Ticker) updateTick(tick, newTick *Tick, tCh chan Tick) {
 	tick.Close = newTick.Close
 	tick.High = maxFloat(tick.High, newTick.High)
 	tick.Low = minFloat(tick.Low, newTick.Low)
 	tick.Vol += newTick.Vol
-	tick.Timestamp = newTick.Timestamp
+	tCh <- *newTick
+	t.SetUpdateFlag()
 }
 
-func (t *Ticker) UpdateTicker(symbol string, trade *core.Trade) {
+func (t *Ticker) UpdateTicker(symbol string, trade *Trade, tCh chan Tick) {
 	tick := t.makeTick(trade)
 	tickList := t.GetTickerList(symbol)
 
 	length := len(tickList)
 	if length == 0 {
-		t.appendTick(symbol, tick)
+		t.appendTick(symbol, tick, tCh)
 		return
 	}
 	lastTicker := tickList[length-1]
 	if tick.Timestamp.Sub(lastTicker.Timestamp) > t.interval {
-		t.appendTick(symbol, tick)
+		t.appendTick(symbol, tick, tCh)
 	} else {
-		t.updateTick(lastTicker, tick)
+		t.updateTick(lastTicker, tick, tCh)
 	}
-	t.SetUpdateFlag()
 }
 
 func (t *Ticker) SetUpdateFlag() {

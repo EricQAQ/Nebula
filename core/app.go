@@ -48,6 +48,7 @@ type TraedApp struct {
 	Cfg      *config.TraedConfig
 	Exchange map[string]ExchangeAPI
 	wsMap    map[string]*WsClient
+	klineMng map[string]*SymbolsKlineManager
 }
 
 func NewTraedApp(cfgPath string) *TraedApp {
@@ -58,6 +59,7 @@ func NewTraedApp(cfgPath string) *TraedApp {
 	app.Cfg = cfg
 	app.Exchange = make(map[string]ExchangeAPI)
 	app.wsMap = make(map[string]*WsClient)
+	app.klineMng = make(map[string]*SymbolsKlineManager)
 	return app
 }
 
@@ -99,6 +101,10 @@ func (app *TraedApp) setupSingalHandler() {
 	}()
 }
 
+func (app *TraedApp) GetKline(exchange, symbol string, interval int) (*Kline, bool) {
+	return app.klineMng[exchange].GetKline(symbol, interval)
+}
+
 func (app *TraedApp) Start() error {
 	app.setupSingalHandler()
 	printInfo()
@@ -107,8 +113,16 @@ func (app *TraedApp) Start() error {
 			return CreateWsErr.FastGen(name, err.Error())
 		}
 	}
+	for name, exCfg := range app.Cfg.ExchangeMap {
+		exchange := app.Exchange[name]
+		app.klineMng[name] = NewSymbolsKlineManager(
+			shutdownCtx, exchange, exCfg.Symbols, app.Cfg.KlineInterval)
+	}
 	for _, ws := range app.wsMap {
 		ws.StartClient(app)
+	}
+	for _, mng := range app.klineMng {
+		mng.Start()
 	}
 	log.Infof("[April] Start April App.")
 	return nil
@@ -117,6 +131,9 @@ func (app *TraedApp) Start() error {
 func (app *TraedApp) Stop() {
 	for _, ws := range app.wsMap {
 		ws.StopClient()
+	}
+	for _, mng := range app.klineMng {
+		mng.Stop()
 	}
 	log.Infof("[April] Stop April App.")
 }

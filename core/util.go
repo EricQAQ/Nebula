@@ -1,13 +1,15 @@
 package core
 
-import (
-	"reflect"
-)
-
-func GetFieldValue(stru interface{}, field string) reflect.Value {
-	v := reflect.ValueOf(stru)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
+func maxFloat(a, b float64) float64 {
+	if a > b {
+		return a
 	}
-	return v.FieldByName(field)
+	return b
+}
+
+func minFloat(a, b float64) float64 {
+	if a < b {
+		return a
+	}
+	return b
 }

@@ -40,10 +40,12 @@ type ExportAPI interface {
 }
 
 type ExchangeAPI interface {
+	GetExchangeName() string
 	GetWsAuthHandler() WsAuthSubscribeHandler
 	GetWsSubscribeHandler() WsAuthSubscribeHandler
 	Parse(data []byte) (*ParsedData, error)
 	HandleMessage(ParsedData)
+	GetTickChan() chan Tick
 
 	OrderAPI
 	ExportAPI

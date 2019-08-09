@@ -49,7 +49,7 @@ func (bm *Bitmex) HandleTrade(action string, data map[string]interface{}) {
 		if action == actionPartial || action == actionInsert {
 			trade := bm.tradeData.makeTrade(ret)
 			bm.tradeData.insertTrade(symbol, trade)
-			bm.tickData.UpdateTicker(symbol, trade)
+			bm.tickData.UpdateTicker(symbol, trade, bm.tickCh)
 		}
 	}
 }
