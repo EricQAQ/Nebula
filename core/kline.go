@@ -61,7 +61,7 @@ func (km *klineManager) getKline(interval int) []*Kline {
 	return klines
 }
 
-func (km *klineManager) newKline(tick *Tick) *Kline {
+func (km *klineManager) newKline(interval int, tick *Tick) *Kline {
 	kline := new(Kline)
 	kline.Symbol = tick.Symbol
 	kline.Open = tick.Open
@@ -69,7 +69,8 @@ func (km *klineManager) newKline(tick *Tick) *Kline {
 	kline.High = tick.High
 	kline.Low = tick.Low
 	kline.Vol = tick.Vol
-	kline.Timestamp = tick.Timestamp
+	kline.Timestamp = tick.Timestamp.Truncate(
+		time.Duration(interval) * time.Second)
 	return kline
 }
 
@@ -83,7 +84,7 @@ func (km *klineManager) updateKline(interval int, kline *Kline, tick *Tick) {
 }
 
 func (km *klineManager) appendKlines(interval int, klines []*Kline, tick *Tick) {
-	kline := km.newKline(tick)
+	kline := km.newKline(interval, tick)
 	if len(klines) >= klineLength {
 		klines = klines[1:]
 	}

@@ -43,7 +43,7 @@ func (t *Ticker) makeTick(trade *Trade) *Tick {
 	tick.High = trade.Price
 	tick.Low = trade.Price
 	tick.Vol = trade.Amount
-	tick.Timestamp = trade.Timestamp
+	tick.Timestamp = trade.Timestamp.Truncate(tickInterval * time.Millisecond)
 	return tick
 }
 
