@@ -37,7 +37,6 @@ func (ord *order) makeOrder(data map[string]interface{}) *core.Order {
 	order := new(core.Order)
 	order.Symbol = data["symbol"].(string)
 	order.OrdStatus = data["ordStatus"].(string)
-	order.Timestamp, _ = time.Parse(time.RFC3339, data["timestamp"].(string))
 	order.Price = data["price"].(float64)
 	order.Amount = data["orderQty"].(float32)
 	order.OrdType = data["ordType"].(string)
@@ -50,6 +49,10 @@ func (ord *order) makeOrder(data map[string]interface{}) *core.Order {
 	} else {
 		order.FilledAmount = 0.0
 	}
+
+	loc, _ := time.LoadLocation("Asia/Chongqing")
+	ts, _ := time.Parse(time.RFC3339, data["timestamp"].(string))
+	order.Timestamp = ts.In(loc)
 	return order
 }
 
@@ -96,7 +99,9 @@ func (ord *order) updateOrder(symbol string, data map[string]interface{}) {
 		} else if name == "filledAmount" {
 			order.FilledAmount = value.(float32)
 		} else if name == "timestamp" {
-			order.Timestamp, _ = time.Parse(time.RFC3339, value.(string))
+			loc, _ := time.LoadLocation("Asia/Chongqing")
+			ts, _ := time.Parse(time.RFC3339, value.(string))
+			order.Timestamp = ts.In(loc)
 		}
 	}
 	// Remove cancelled / filled orders

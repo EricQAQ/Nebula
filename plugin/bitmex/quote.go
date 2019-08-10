@@ -47,21 +47,13 @@ func (qu *quote) insertQuote(symbol string, quote *core.Quote) {
 func (qu *quote) makeQuote(data map[string]interface{}) *core.Quote {
 	quote := new(core.Quote)
 	quote.Symbol = data["symbol"].(string)
+	quote.BidSize = data["bidSize"].(float64)
+	quote.BidPrice = data["bidPrice"].(float64)
+	quote.AskPrice = data["askPrice"].(float64)
+	quote.AskSize = data["askSize"].(float64)
 
-	if bidSize, ok := data["bidSize"]; ok {
-		quote.BidSize = bidSize.(float64)
-	}
-	if bidPrice, ok := data["bidPrice"]; ok {
-		quote.BidPrice = bidPrice.(float64)
-	}
-	if askPrice, ok := data["askPrice"]; ok {
-		quote.AskPrice = askPrice.(float64)
-	}
-	if askSize, ok := data["askSize"]; ok {
-		quote.AskSize = askSize.(float64)
-	}
-	if ts, ok := data["timestamp"].(string); ok {
-		quote.Timestamp, _ = time.Parse(time.RFC3339, ts)
-	}
+	loc, _ := time.LoadLocation("Asia/Chongqing")
+	ts, _ := time.Parse(time.RFC3339, data["timestamp"].(string))
+	quote.Timestamp = ts.In(loc)
 	return quote
 }

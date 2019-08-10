@@ -47,21 +47,13 @@ func (td *trade) insertTrade(symbol string, trade *core.Trade) {
 func (td *trade) makeTrade(data map[string]interface{}) *core.Trade {
 	trade := new(core.Trade)
 	trade.Symbol = data["symbol"].(string)
+	trade.Side = data["side"].(string)
+	trade.Amount = data["size"].(float64)
+	trade.Price = data["price"].(float64)
+	trade.TID = data["trdMatchID"].(string)
 
-	if side, ok := data["side"]; ok {
-		trade.Side = side.(string)
-	}
-	if size, ok := data["size"]; ok {
-		trade.Amount = size.(float64)
-	}
-	if price, ok := data["price"]; ok {
-		trade.Price = price.(float64)
-	}
-	if trdMatchID, ok := data["trdMatchID"]; ok {
-		trade.TID = trdMatchID.(string)
-	}
-	if ts, ok := data["timestamp"].(string); ok {
-		trade.Timestamp, _ = time.Parse(time.RFC3339, ts)
-	}
+	loc, _ := time.LoadLocation("Asia/Chongqing")
+	ts, _ := time.Parse(time.RFC3339, data["timestamp"].(string))
+	trade.Timestamp = ts.In(loc)
 	return trade
 }
