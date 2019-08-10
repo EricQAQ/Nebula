@@ -6,7 +6,7 @@ import (
 
 	"github.com/orcaman/concurrent-map"
 
-	"github.com/EricQAQ/Traed/core"
+	"github.com/EricQAQ/Traed/model"
 )
 
 type order struct {
@@ -22,19 +22,19 @@ func newOrder(symbols []string) *order {
 	ord.isUpdate = 0
 	for _, symbol := range symbols {
 		ord.orderKeys[symbol] = wsOrderKeys
-		ord.orderData.Set(symbol, make([]*core.Order, 0, dataLength))
+		ord.orderData.Set(symbol, make([]*model.Order, 0, dataLength))
 	}
 	return ord
 }
 
-func (ord *order) getOrderList(symbol string) []*core.Order {
+func (ord *order) getOrderList(symbol string) []*model.Order {
 	data, _ := ord.orderData.Get(symbol)
-	orderList := data.([]*core.Order)
+	orderList := data.([]*model.Order)
 	return orderList
 }
 
-func (ord *order) makeOrder(data map[string]interface{}) *core.Order {
-	order := new(core.Order)
+func (ord *order) makeOrder(data map[string]interface{}) *model.Order {
+	order := new(model.Order)
 	order.Symbol = data["symbol"].(string)
 	order.OrdStatus = data["ordStatus"].(string)
 	order.Price = data["price"].(float64)
@@ -56,7 +56,7 @@ func (ord *order) makeOrder(data map[string]interface{}) *core.Order {
 	return order
 }
 
-func (ord *order) insertOrder(symbol string, order *core.Order) {
+func (ord *order) insertOrder(symbol string, order *model.Order) {
 	orderList := ord.getOrderList(symbol)
 	length := len(orderList)
 	if length >= dataLength {
@@ -68,7 +68,7 @@ func (ord *order) insertOrder(symbol string, order *core.Order) {
 }
 
 func (ord *order) findOrderItemByKeys(
-	symbol string, updateData map[string]interface{}) (int, *core.Order) {
+	symbol string, updateData map[string]interface{}) (int, *model.Order) {
 	orderList := ord.getOrderList(symbol)
 	for index, val := range orderList {
 		if val.OrderID == updateData["orderID"].(string) {
@@ -120,14 +120,14 @@ func (ord *order) deleteOrder(symbol string, data map[string]interface{}) {
 	atomic.StoreInt32(&ord.isUpdate, 1)
 }
 
-func (ord *order) needDeleteOrder(order *core.Order) bool {
+func (ord *order) needDeleteOrder(order *model.Order) bool {
 	if orderStatusMap[order.OrdStatus] != "open" {
 		return true
 	}
 	return false
 }
 
-func (ord *order) cleanOrder(index int, order *core.Order) {
+func (ord *order) cleanOrder(index int, order *model.Order) {
 	if ord.needDeleteOrder(order) {
 		orderList := ord.getOrderList(order.Symbol)
 		orderList = append(orderList[:index], orderList[index+1:]...)
@@ -136,108 +136,108 @@ func (ord *order) cleanOrder(index int, order *core.Order) {
 }
 
 func (bm *Bitmex) LimitBuy(
-	symbol string, price float64, quantity float32) (*core.Order, error) {
+	symbol string, price float64, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideBuy, core.OrdLimit,
+		symbol, model.SideBuy, model.OrdLimit,
 		price, 0, quantity)
 }
 
 func (bm *Bitmex) LimitSell(
-	symbol string, price float64, quantity float32) (*core.Order, error) {
+	symbol string, price float64, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideSell, core.OrdLimit,
+		symbol, model.SideSell, model.OrdLimit,
 		price, 0, quantity)
 }
 
 func (bm *Bitmex) MarketBuy(
-	symbol string, quantity float32) (*core.Order, error) {
+	symbol string, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideBuy, core.OrdMarket,
+		symbol, model.SideBuy, model.OrdMarket,
 		0, 0, quantity)
 }
 
 func (bm *Bitmex) MarketSell(
-	symbol string, quantity float32) (*core.Order, error) {
+	symbol string, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideSell, core.OrdMarket,
+		symbol, model.SideSell, model.OrdMarket,
 		0, 0, quantity)
 }
 
 func (bm *Bitmex) LimitStopBuy(
 	symbol string, stopPx float64,
-	price float64, quantity float32) (*core.Order, error) {
+	price float64, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideSell, core.OrdStopLimit,
+		symbol, model.SideSell, model.OrdStopLimit,
 		price, stopPx, quantity)
 }
 
 func (bm *Bitmex) LimitStopSell(
 	symbol string, stopPx float64,
-	price float64, quantity float32) (*core.Order, error) {
+	price float64, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideBuy, core.OrdStopLimit,
+		symbol, model.SideBuy, model.OrdStopLimit,
 		price, stopPx, quantity)
 }
 
 func (bm *Bitmex) MarketStopBuy(
-	symbol string, stopPx float64, quantity float32) (*core.Order, error) {
+	symbol string, stopPx float64, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideSell, core.OrdStop,
+		symbol, model.SideSell, model.OrdStop,
 		0, stopPx, quantity)
 }
 
 func (bm *Bitmex) MarketStopSell(
-	symbol string, stopPx float64, quantity float32) (*core.Order, error) {
+	symbol string, stopPx float64, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideBuy, core.OrdStop,
+		symbol, model.SideBuy, model.OrdStop,
 		0, stopPx, quantity)
 }
 
 func (bm *Bitmex) LimitIfTouchedBuy(
 	symbol string, stopPx float64, price float64,
-	quantity float32) (*core.Order, error) {
+	quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideSell, core.LimitIfTouched,
+		symbol, model.SideSell, model.LimitIfTouched,
 		price, stopPx, quantity)
 }
 
 func (bm *Bitmex) LimitIfTouchedSell(
 	symbol string, stopPx float64, price float64,
-	quantity float32) (*core.Order, error) {
+	quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideBuy, core.LimitIfTouched,
+		symbol, model.SideBuy, model.LimitIfTouched,
 		price, stopPx, quantity)
 }
 
 func (bm *Bitmex) MarketIfTouchedBuy(
-	symbol string, stopPx float64, quantity float32) (*core.Order, error) {
+	symbol string, stopPx float64, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideSell, core.MarketIfTouched,
+		symbol, model.SideSell, model.MarketIfTouched,
 		0, stopPx, quantity)
 }
 
 func (bm *Bitmex) MarketIfTouchedSell(
-	symbol string, stopPx float64, quantity float32) (*core.Order, error) {
+	symbol string, stopPx float64, quantity float32) (*model.Order, error) {
 	return bm.create_order(
-		symbol, core.SideBuy, core.MarketIfTouched,
+		symbol, model.SideBuy, model.MarketIfTouched,
 		0, stopPx, quantity)
 }
 
 func (bm *Bitmex) create_order(
 	symbol, side, ordType string,
-	price, stopPx float64, quantity float32) (*core.Order, error) {
+	price, stopPx float64, quantity float32) (*model.Order, error) {
 	data := make(map[string]interface{})
 	data["symbol"] = symbol
 	data["side"] = side
 	data["ordType"] = ordType
 	data["orderQty"] = quantity
 
-	if ordType == core.OrdLimit || ordType == core.OrdStopLimit ||
-		ordType == core.LimitIfTouched {
+	if ordType == model.OrdLimit || ordType == model.OrdStopLimit ||
+		ordType == model.LimitIfTouched {
 		data["price"] = price
 	}
 
-	if ordType != core.OrdLimit && ordType != core.OrdMarket {
+	if ordType != model.OrdLimit && ordType != model.OrdMarket {
 		data["stopPx"] = stopPx
 	}
 
@@ -245,7 +245,7 @@ func (bm *Bitmex) create_order(
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*core.Order), nil
+	return resp.(*model.Order), nil
 }
 
 // func (bm *Bitmex) edit_order() {

@@ -1,5 +1,9 @@
 package core
 
+import (
+	"github.com/EricQAQ/Traed/model"
+)
+
 const (
 	WelcomeMsg = iota
 	AuthMsg
@@ -19,24 +23,24 @@ type WsAuthSubscribeHandler interface {
 }
 
 type OrderAPI interface {
-	LimitBuy(symbol string, price float64, quantity float32) (*Order, error)
-	LimitSell(symbol string, price float64, quantity float32) (*Order, error)
-	MarketBuy(symbol string, quantity float32) (*Order, error)
-	MarketSell(symbol string, quantity float32) (*Order, error)
-	LimitStopBuy(symbol string, stopPx float64, price float64, quantity float32) (*Order, error)
-	LimitStopSell(symbol string, stopPx float64, price float64, quantity float32) (*Order, error)
-	MarketStopBuy(symbol string, stopPx float64, quantity float32) (*Order, error)
-	MarketStopSell(symbol string, stopPx float64, quantity float32) (*Order, error)
-	LimitIfTouchedBuy(symbol string, stopPx float64, price float64, quantity float32) (*Order, error)
-	LimitIfTouchedSell(symbol string, stopPx float64, price float64, quantity float32) (*Order, error)
+	LimitBuy(symbol string, price float64, quantity float32) (*model.Order, error)
+	LimitSell(symbol string, price float64, quantity float32) (*model.Order, error)
+	MarketBuy(symbol string, quantity float32) (*model.Order, error)
+	MarketSell(symbol string, quantity float32) (*model.Order, error)
+	LimitStopBuy(symbol string, stopPx float64, price float64, quantity float32) (*model.Order, error)
+	LimitStopSell(symbol string, stopPx float64, price float64, quantity float32) (*model.Order, error)
+	MarketStopBuy(symbol string, stopPx float64, quantity float32) (*model.Order, error)
+	MarketStopSell(symbol string, stopPx float64, quantity float32) (*model.Order, error)
+	LimitIfTouchedBuy(symbol string, stopPx float64, price float64, quantity float32) (*model.Order, error)
+	LimitIfTouchedSell(symbol string, stopPx float64, price float64, quantity float32) (*model.Order, error)
 }
 
 type ExportAPI interface {
-	GetTick(symbol string) (*Tick, bool)
-	GetQuote(symbol string) (*Quote, bool)
-	GetTrade(symbol string) (*Trade, bool)
-	GetOrders(symbol string) ([]*Order, bool)
-	GetPosition(symbol string) ([]*Position, bool)
+	GetTick(symbol string) (*model.Tick, bool)
+	GetQuote(symbol string) (*model.Quote, bool)
+	GetTrade(symbol string) (*model.Trade, bool)
+	GetOrders(symbol string) ([]*model.Order, bool)
+	GetPosition(symbol string) ([]*model.Position, bool)
 }
 
 type ExchangeAPI interface {
@@ -45,7 +49,7 @@ type ExchangeAPI interface {
 	GetWsSubscribeHandler() WsAuthSubscribeHandler
 	Parse(data []byte) (*ParsedData, error)
 	HandleMessage(ParsedData)
-	GetTickChan() chan Tick
+	GetTickChan() chan model.Tick
 
 	OrderAPI
 	ExportAPI

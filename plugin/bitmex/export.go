@@ -3,10 +3,10 @@ package bitmex
 import (
 	"sync/atomic"
 
-	"github.com/EricQAQ/Traed/core"
+	"github.com/EricQAQ/Traed/model"
 )
 
-func (bm *Bitmex) GetTick(symbol string) (*core.Tick, bool) {
+func (bm *Bitmex) GetTick(symbol string) (*model.Tick, bool) {
 	tickList := bm.tickData.GetTickerList(symbol)
 	length := len(tickList)
 	if length == 0 {
@@ -16,7 +16,7 @@ func (bm *Bitmex) GetTick(symbol string) (*core.Tick, bool) {
 	return tickList[length-1], isUpdate
 }
 
-func (bm *Bitmex) GetQuote(symbol string) (*core.Quote, bool) {
+func (bm *Bitmex) GetQuote(symbol string) (*model.Quote, bool) {
 	quoteList := bm.quoteData.getQuoteList(symbol)
 	length := len(quoteList)
 	if length == 0 {
@@ -26,7 +26,7 @@ func (bm *Bitmex) GetQuote(symbol string) (*core.Quote, bool) {
 	return quoteList[length-1], isUpdate
 }
 
-func (bm *Bitmex) GetTrade(symbol string) (*core.Trade, bool) {
+func (bm *Bitmex) GetTrade(symbol string) (*model.Trade, bool) {
 	tradeList := bm.tradeData.getTradeList(symbol)
 	length := len(tradeList)
 	if length == 0 {
@@ -36,9 +36,9 @@ func (bm *Bitmex) GetTrade(symbol string) (*core.Trade, bool) {
 	return tradeList[length-1], isUpdate
 }
 
-func (bm *Bitmex) GetOrders(symbol string) ([]*core.Order, bool) {
+func (bm *Bitmex) GetOrders(symbol string) ([]*model.Order, bool) {
 	orderList := bm.orderData.getOrderList(symbol)
-	resp := make([]*core.Order, 0, len(orderList))
+	resp := make([]*model.Order, 0, len(orderList))
 	// filter orders
 	for _, order := range orderList {
 		if !bm.orderData.needDeleteOrder(order) {
@@ -49,7 +49,7 @@ func (bm *Bitmex) GetOrders(symbol string) ([]*core.Order, bool) {
 	return resp, isUpdate
 }
 
-func (bm *Bitmex) GetPosition(symbol string) ([]*core.Position, bool) {
+func (bm *Bitmex) GetPosition(symbol string) ([]*model.Position, bool) {
 	positionList := bm.positionData.getPositionList(symbol)
 	isUpdate := atomic.CompareAndSwapInt32(&bm.positionData.isUpdate, 1, 0)
 	return positionList, isUpdate

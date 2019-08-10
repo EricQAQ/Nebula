@@ -5,7 +5,7 @@ import (
 
 	"github.com/orcaman/concurrent-map"
 
-	"github.com/EricQAQ/Traed/core"
+	"github.com/EricQAQ/Traed/model"
 )
 
 type position struct {
@@ -21,19 +21,19 @@ func newPosition(symbols []string) *position {
 	pos.isUpdate = 0
 	for _, symbol := range symbols {
 		pos.positionKeys[symbol] = wsPositionKeys
-		pos.positionData.Set(symbol, make([]*core.Position, 0, dataLength))
+		pos.positionData.Set(symbol, make([]*model.Position, 0, dataLength))
 	}
 	return pos
 }
 
-func (pos *position) getPositionList(symbol string) []*core.Position {
+func (pos *position) getPositionList(symbol string) []*model.Position {
 	data, _ := pos.positionData.Get(symbol)
-	posList := data.([]*core.Position)
+	posList := data.([]*model.Position)
 	return posList
 }
 
-func (pos *position) makePosition(data map[string]interface{}) *core.Position {
-	p := new(core.Position)
+func (pos *position) makePosition(data map[string]interface{}) *model.Position {
+	p := new(model.Position)
 	p.Symbol = data["symbol"].(string)
 	p.Account = data["account"].(float64)
 	p.Currency = data["currency"].(string)
@@ -60,7 +60,7 @@ func (pos *position) makePosition(data map[string]interface{}) *core.Position {
 	return p
 }
 
-func (pos *position) insertPosition(symbol string, position *core.Position) {
+func (pos *position) insertPosition(symbol string, position *model.Position) {
 	posList := pos.getPositionList(symbol)
 	length := len(posList)
 	if length >= dataLength {
@@ -72,7 +72,7 @@ func (pos *position) insertPosition(symbol string, position *core.Position) {
 }
 
 func (pos *position) findPositionItemByKeys(
-	symbol string, updateData map[string]interface{}) (int, *core.Position) {
+	symbol string, updateData map[string]interface{}) (int, *model.Position) {
 	posList := pos.getPositionList(symbol)
 	for index, val := range posList {
 		if val.Account == updateData["account"].(float64) &&

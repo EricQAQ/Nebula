@@ -6,7 +6,7 @@ import (
 
 	"github.com/orcaman/concurrent-map"
 
-	"github.com/EricQAQ/Traed/core"
+	"github.com/EricQAQ/Traed/model"
 )
 
 type quote struct {
@@ -22,18 +22,18 @@ func newQuote(symbols []string) *quote {
 	q.isUpdate = 0
 	for _, symbol := range symbols {
 		q.quoteKeys[symbol] = wsQuoteKeys
-		q.quoteData.Set(symbol, make([]*core.Quote, 0, dataLength))
+		q.quoteData.Set(symbol, make([]*model.Quote, 0, dataLength))
 	}
 	return q
 }
 
-func (qu *quote) getQuoteList(symbol string) []*core.Quote {
+func (qu *quote) getQuoteList(symbol string) []*model.Quote {
 	data, _ := qu.quoteData.Get(symbol)
-	quoteList := data.([]*core.Quote)
+	quoteList := data.([]*model.Quote)
 	return quoteList
 }
 
-func (qu *quote) insertQuote(symbol string, quote *core.Quote) {
+func (qu *quote) insertQuote(symbol string, quote *model.Quote) {
 	quoteList := qu.getQuoteList(symbol)
 	length := len(quoteList)
 	if length >= dataLength {
@@ -44,8 +44,8 @@ func (qu *quote) insertQuote(symbol string, quote *core.Quote) {
 	atomic.StoreInt32(&qu.isUpdate, 1)
 }
 
-func (qu *quote) makeQuote(data map[string]interface{}) *core.Quote {
-	quote := new(core.Quote)
+func (qu *quote) makeQuote(data map[string]interface{}) *model.Quote {
+	quote := new(model.Quote)
 	quote.Symbol = data["symbol"].(string)
 	quote.BidSize = data["bidSize"].(float64)
 	quote.BidPrice = data["bidPrice"].(float64)

@@ -1,8 +1,10 @@
-package core
+package kline
 
 import (
 	"sync/atomic"
 	"time"
+
+	"github.com/EricQAQ/Traed/model"
 
 	"github.com/orcaman/concurrent-map"
 )
@@ -24,19 +26,19 @@ func NewTicker(symbols []string) *Ticker {
 	t.isUpdate = 0
 	t.interval = time.Duration(tickInterval) * time.Millisecond
 	for _, symbol := range symbols {
-		t.tickData.Set(symbol, make([]*Tick, 0, tickLength))
+		t.tickData.Set(symbol, make([]*model.Tick, 0, tickLength))
 	}
 	return t
 }
 
-func (t *Ticker) GetTickerList(symbol string) []*Tick {
+func (t *Ticker) GetTickerList(symbol string) []*model.Tick {
 	data, _ := t.tickData.Get(symbol)
-	tickList := data.([]*Tick)
+	tickList := data.([]*model.Tick)
 	return tickList
 }
 
-func (t *Ticker) makeTick(trade *Trade) *Tick {
-	tick := new(Tick)
+func (t *Ticker) makeTick(trade *model.Trade) *model.Tick {
+	tick := new(model.Tick)
 	tick.Symbol = trade.Symbol
 	tick.Open = trade.Price
 	tick.Close = trade.Price
@@ -47,7 +49,7 @@ func (t *Ticker) makeTick(trade *Trade) *Tick {
 	return tick
 }
 
-func (t *Ticker) appendTick(symbol string, tick *Tick, tCh chan Tick) {
+func (t *Ticker) appendTick(symbol string, tick *model.Tick, tCh chan model.Tick) {
 	tickList := t.GetTickerList(symbol)
 	if len(tickList) >= tickLength {
 		tickList = tickList[1:]
@@ -58,7 +60,7 @@ func (t *Ticker) appendTick(symbol string, tick *Tick, tCh chan Tick) {
 	t.SetUpdateFlag()
 }
 
-func (t *Ticker) updateTick(tick, newTick *Tick, tCh chan Tick) {
+func (t *Ticker) updateTick(tick, newTick *model.Tick, tCh chan model.Tick) {
 	tick.Close = newTick.Close
 	tick.High = maxFloat(tick.High, newTick.High)
 	tick.Low = minFloat(tick.Low, newTick.Low)
@@ -67,7 +69,8 @@ func (t *Ticker) updateTick(tick, newTick *Tick, tCh chan Tick) {
 	t.SetUpdateFlag()
 }
 
-func (t *Ticker) UpdateTicker(symbol string, trade *Trade, tCh chan Tick) {
+func (t *Ticker) UpdateTicker(
+	symbol string, trade *model.Trade, tCh chan model.Tick) {
 	tick := t.makeTick(trade)
 	tickList := t.GetTickerList(symbol)
 

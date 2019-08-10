@@ -6,7 +6,7 @@ import (
 
 	"github.com/orcaman/concurrent-map"
 
-	"github.com/EricQAQ/Traed/core"
+	"github.com/EricQAQ/Traed/model"
 )
 
 type trade struct {
@@ -22,18 +22,18 @@ func newTrade(symbols []string) *trade {
 	t.isUpdate = 0
 	for _, symbol := range symbols {
 		t.tradeKeys[symbol] = wsTradeKeys
-		t.tradeData.Set(symbol, make([]*core.Trade, 0, dataLength))
+		t.tradeData.Set(symbol, make([]*model.Trade, 0, dataLength))
 	}
 	return t
 }
 
-func (td *trade) getTradeList(symbol string) []*core.Trade {
+func (td *trade) getTradeList(symbol string) []*model.Trade {
 	data, _ := td.tradeData.Get(symbol)
-	tradeList := data.([]*core.Trade)
+	tradeList := data.([]*model.Trade)
 	return tradeList
 }
 
-func (td *trade) insertTrade(symbol string, trade *core.Trade) {
+func (td *trade) insertTrade(symbol string, trade *model.Trade) {
 	tradeList := td.getTradeList(symbol)
 	length := len(tradeList)
 	if length >= dataLength {
@@ -44,8 +44,8 @@ func (td *trade) insertTrade(symbol string, trade *core.Trade) {
 	atomic.StoreInt32(&td.isUpdate, 1)
 }
 
-func (td *trade) makeTrade(data map[string]interface{}) *core.Trade {
-	trade := new(core.Trade)
+func (td *trade) makeTrade(data map[string]interface{}) *model.Trade {
+	trade := new(model.Trade)
 	trade.Symbol = data["symbol"].(string)
 	trade.Side = data["side"].(string)
 	trade.Amount = data["size"].(float64)

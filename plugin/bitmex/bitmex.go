@@ -5,6 +5,8 @@ import (
 
 	"github.com/EricQAQ/Traed/config"
 	"github.com/EricQAQ/Traed/core"
+	"github.com/EricQAQ/Traed/model"
+	"github.com/EricQAQ/Traed/kline"
 )
 
 const (
@@ -21,8 +23,8 @@ type Bitmex struct {
 	auth      *BitmexAuth
 	subscribe *BitmexSubscribe
 
-	tickData     *core.Ticker
-	tickCh       chan core.Tick
+	tickData     *kline.Ticker
+	tickCh       chan model.Tick
 	tradeData    *trade
 	quoteData    *quote
 	orderData    *order
@@ -41,13 +43,13 @@ func CreateBitmex(
 	bm.auth = NewBitmexAuth(bm.APIKey, bm.APISecret, 24)
 	bm.subscribe = NewBitmexSubscribe(exchangeConfig.Symbols, exchangeConfig.Topic...)
 
-	bm.tickData = core.NewTicker(exchangeConfig.Symbols)
+	bm.tickData = kline.NewTicker(exchangeConfig.Symbols)
 	bm.tradeData = newTrade(exchangeConfig.Symbols)
 	bm.quoteData = newQuote(exchangeConfig.Symbols)
 	bm.orderData = newOrder(exchangeConfig.Symbols)
 	bm.positionData = newPosition(exchangeConfig.Symbols)
 
-	bm.tickCh = make(chan core.Tick, 1024)
+	bm.tickCh = make(chan model.Tick, 1024)
 	return bm
 }
 
@@ -63,6 +65,6 @@ func (bm *Bitmex) GetExchangeName() string {
 	return "bitmex"
 }
 
-func (bm *Bitmex) GetTickChan() chan core.Tick {
+func (bm *Bitmex) GetTickChan() chan model.Tick {
 	return bm.tickCh
 }

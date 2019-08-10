@@ -8,6 +8,7 @@ import (
 
 	"github.com/EricQAQ/Traed/config"
 	"github.com/EricQAQ/Traed/logger"
+	"github.com/EricQAQ/Traed/kline"
 
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
@@ -101,7 +102,7 @@ func (app *TraedApp) setupSingalHandler() {
 	}()
 }
 
-func (app *TraedApp) GetKline(exchange, symbol string, interval int) (*Kline, bool) {
+func (app *TraedApp) GetKline(exchange, symbol string, interval int) (*kline.Kline, bool) {
 	return app.klineMng[exchange].GetKline(symbol, interval)
 }
 

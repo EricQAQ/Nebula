@@ -1,4 +1,4 @@
-package core
+package kline
 
 func maxFloat(a, b float64) float64 {
 	if a > b {
