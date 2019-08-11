@@ -75,6 +75,11 @@ func (km *KlineManager) GetKline(interval int) []*Kline {
 	return klines
 }
 
+func (km *KlineManager) SetKline(interval int, klines []*Kline) {
+	str := strconv.Itoa(interval)
+	km.klineMap.Set(str, klines)
+}
+
 func (km *KlineManager) newKline(interval int, tick *model.Tick) *Kline {
 	kline := new(Kline)
 	kline.Symbol = tick.Symbol

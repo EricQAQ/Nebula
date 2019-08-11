@@ -7,8 +7,10 @@ import (
 	"syscall"
 
 	"github.com/EricQAQ/Traed/config"
-	"github.com/EricQAQ/Traed/logger"
 	"github.com/EricQAQ/Traed/kline"
+	"github.com/EricQAQ/Traed/logger"
+	"github.com/EricQAQ/Traed/storage"
+	"github.com/EricQAQ/Traed/storage/csv"
 
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
@@ -50,6 +52,7 @@ type TraedApp struct {
 	Exchange map[string]ExchangeAPI
 	wsMap    map[string]*WsClient
 	klineMng map[string]*SymbolsKlineManager
+	store    storage.StorageAPI
 }
 
 func NewTraedApp(cfgPath string) *TraedApp {
@@ -61,7 +64,15 @@ func NewTraedApp(cfgPath string) *TraedApp {
 	app.Exchange = make(map[string]ExchangeAPI)
 	app.wsMap = make(map[string]*WsClient)
 	app.klineMng = make(map[string]*SymbolsKlineManager)
+	app.setStorage()
 	return app
+}
+
+func (app *TraedApp) setStorage() {
+	switch app.Cfg.Storage.StorageType {
+	case "csv":
+		app.store = csv.NewCsvStorage(app.Cfg.Storage.Csv.DataDir)
+	}
 }
 
 func (app *TraedApp) SetExchange(exchangeName string, exchange ExchangeAPI) error {
@@ -117,7 +128,8 @@ func (app *TraedApp) Start() error {
 	for name, exCfg := range app.Cfg.ExchangeMap {
 		exchange := app.Exchange[name]
 		app.klineMng[name] = NewSymbolsKlineManager(
-			shutdownCtx, exchange, exCfg.Symbols, app.Cfg.KlineInterval)
+			shutdownCtx, exchange, app.store,
+			exCfg.Symbols, app.Cfg.KlineInterval)
 	}
 	for _, ws := range app.wsMap {
 		ws.StartClient(app)

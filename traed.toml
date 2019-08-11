@@ -31,6 +31,11 @@ write-wait = 10000
 heartbeat-duration = 10
 retry = 5
 
+[storage]
+storage-type = "csv"
+    [storage.csv]
+    data-dir = ""
+
 [log]
 # Log file path, if the value is "", it means output to stdout
 log-file = ""

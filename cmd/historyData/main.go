@@ -20,7 +20,6 @@ func main() {
 	var (
 		exchange  = flag.String("exchange", "bitmex", "exchange name")
 		symbol    = flag.String("symbols", "", "the symbols, use `,` to split")
-		period    = flag.String("period", "1m", "1m, 5m, 1h, 1d")
 		startDate = flag.String("start", "", "the start date, `2006-01-02`")
 		endDate   = flag.String("end", "", "the end date, `2006-01-02`")
 		config    = flag.String("config", "", "config path")
@@ -38,13 +37,8 @@ func main() {
 	start, _ := time.Parse(dateFormat, *startDate)
 	end, _ := time.Parse(dateFormat, *endDate)
 
-	if *period == "1h" {
-		getOneHourPeriodData(
-			*exchange, *symbol, *period, start, end, ex, st)
-	} else if *period == "1m" {
-		getOneMinutePeriodData(
-			*exchange, *symbol, *period, start, end, ex, st)
-	}
+	getOneMinutePeriodData(
+		*exchange, *symbol, "1m", start, end, ex, st)
 }
 
 func getOneMinutePeriodData(
@@ -52,7 +46,7 @@ func getOneMinutePeriodData(
 	exchange core.ExchangeAPI, st storage.StorageAPI) {
 	end = end.Add(24*time.Hour)
 	day := start
-	klist := make([]*kline.Kline, 0, 60 * 24)
+	klist := make([]*kline.Kline, 0, 2048)
 	for {
 		tempEnd := start.Add(time.Hour)
 		tl, err := exchange.GetHistoryKline(symbol, period, start, tempEnd)
@@ -60,6 +54,7 @@ func getOneMinutePeriodData(
 			fmt.Println(err.Error())
 			return
 		}
+		fmt.Printf("Receive %d k-lines.\n", len(tl))
 		klist = append(klist, tl[:len(tl)-1]...)
 
 		start = tempEnd
@@ -68,11 +63,19 @@ func getOneMinutePeriodData(
 				fmt.Println(err.Error())
 				return
 			}
+			fmt.Printf("Flush k-line data: %s\n", day.String())
 			day = start
-			klist = klist[:1]
+			klist = klist[:0]
 		}
 
 		if start.After(end) || start.Equal(end) {
+			return
+		}
+
+		if len(klist) % 60 != 0 {
+			if err = st.SetKlines(exName, symbol, klist); err != nil {
+				fmt.Println(err.Error())
+			}
 			return
 		}
 	}

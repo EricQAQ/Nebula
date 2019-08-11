@@ -26,6 +26,10 @@ func NewCsvStorage(dir string) *CsvStorage {
 	return cs
 }
 
+func (cs *CsvStorage) GetDataDir() string {
+	return cs.dataDir
+}
+
 func (cs *CsvStorage) SetKlines(
 	exchange, symbol string, klines []*kline.Kline) error {
 	startTs := klines[0].Timestamp
@@ -37,7 +41,7 @@ func (cs *CsvStorage) SetKlines(
 		startTs.Format(timeFormat), endTs.Format(timeFormat))
 
 	file, err := os.OpenFile(
-		path.Join(dir, fileName), os.O_RDWR|os.O_CREATE, os.ModePerm)
+		path.Join(dir, fileName), os.O_RDWR|os.O_APPEND|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return err
 	}

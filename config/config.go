@@ -20,6 +20,7 @@ type TraedConfig struct {
 	Http          *HttpConfig                `toml:"http" json:"http"`
 	ExchangeMap   map[string]*ExchangeConfig `toml:"exchange" json:"exchange"`
 	Websocket     *WebsocketConfig           `toml:"websocket" json:"websocket"`
+	Storage       StorageConfig              `toml:"storage" json:"storage"`
 
 	// Log settings
 	Log *LogConfig `toml:"log" json:"log"`
@@ -44,6 +45,15 @@ type WebsocketConfig struct {
 	WriteWait         int `toml:"write-wait" json:"write_wait"`
 	ReadWait          int `toml:"read-wait" json:"read_wait"`
 	RetryCount        int `toml:"retry" json:"retry"`
+}
+
+type StorageConfig struct {
+	StorageType string    `toml:"storage-type" json:"storage_type"`
+	Csv         CsvConfig `toml:"csv" json:"csv"`
+}
+
+type CsvConfig struct {
+	DataDir string `toml:"data-dir" json:"data_dir"`
 }
 
 type LogConfig struct {
