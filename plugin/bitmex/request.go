@@ -10,6 +10,7 @@ import (
 )
 
 type makeResp func(map[string]interface{}) interface{}
+type makeRespList func([]map[string]interface{}) interface{}
 
 func (bm *Bitmex) makeAuthHeader(
 	req *gorequest.SuperAgent, method, url string, expireTs int64,
@@ -23,6 +24,20 @@ func (bm *Bitmex) makeAuthHeader(
 	req.Set("api-expires", strconv.FormatInt(expireTs, 10))
 	req.Set("api-signature", fmt.Sprintf("%x", sig))
 	return nil
+}
+
+func (bm *Bitmex) doRequestGetList(
+	method, url string, data map[string]interface{},
+	makeRespFn makeRespList) (interface{}, error) {
+	body, err := bm.sendRequest(method, url, data, false, 0)
+	if err != nil {
+		return nil, err
+	}
+	bodyMap := make([]map[string]interface{}, 0, 1024)
+	if err = json.Unmarshal(body, &bodyMap); err != nil {
+		return nil, err
+	}
+	return makeRespFn(bodyMap), nil
 }
 
 func (bm *Bitmex) doAuthRequest(

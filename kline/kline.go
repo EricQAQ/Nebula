@@ -23,6 +23,21 @@ type Kline struct {
 	Timestamp time.Time
 }
 
+func NewKline(data map[string]interface{}) *Kline {
+	kline := new(Kline)
+	kline.Symbol = data["symbol"].(string)
+	kline.Open = data["open"].(float64)
+	kline.Close = data["close"].(float64)
+	kline.High = data["high"].(float64)
+	kline.Low = data["low"].(float64)
+	kline.Vol = data["volume"].(float64)
+
+	loc, _ := time.LoadLocation("Asia/Chongqing")
+	ts, _ := time.Parse(time.RFC3339, data["timestamp"].(string))
+	kline.Timestamp = ts.In(loc)
+	return kline
+}
+
 type KlineManager struct {
 	symbol    string
 	intervals []string

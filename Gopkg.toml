@@ -26,6 +26,10 @@
   name = "github.com/orcaman/concurrent-map"
   branch = "master"
 
+[[constraint]]
+  name = "github.com/gocarina/gocsv"
+  branch = "master"
+
 [prune]
   go-tests = true
   unused-packages = true

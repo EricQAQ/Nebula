@@ -1,7 +1,10 @@
 package core
 
 import (
+	"time"
+
 	"github.com/EricQAQ/Traed/model"
+	"github.com/EricQAQ/Traed/kline"
 )
 
 const (
@@ -50,6 +53,7 @@ type ExchangeAPI interface {
 	Parse(data []byte) (*ParsedData, error)
 	HandleMessage(ParsedData)
 	GetTickChan() chan model.Tick
+	GetHistoryKline(symbol, period string, start, end time.Time) ([]*kline.Kline, error)
 
 	OrderAPI
 	ExportAPI
