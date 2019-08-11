@@ -31,12 +31,12 @@ type Order struct {
 }
 
 type Trade struct {
-	Symbol    string
-	TID       string
-	Side      string
-	Price     float64
-	Amount    float64
-	Timestamp time.Time
+	Symbol    string    `csv:"symbol"`
+	TID       string    `csv:"tid"`
+	Side      string    `csv:"side"`
+	Price     float64   `csv:"price"`
+	Amount    float64   `csv:"amount"`
+	Timestamp time.Time `csv:"timestamp"`
 }
 
 type Quote struct {

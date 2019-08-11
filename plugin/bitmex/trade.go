@@ -44,7 +44,7 @@ func (td *trade) insertTrade(symbol string, trade *model.Trade) {
 	atomic.StoreInt32(&td.isUpdate, 1)
 }
 
-func (td *trade) makeTrade(data map[string]interface{}) *model.Trade {
+func makeTrade(data map[string]interface{}) *model.Trade {
 	trade := new(model.Trade)
 	trade.Symbol = data["symbol"].(string)
 	trade.Side = data["side"].(string)
