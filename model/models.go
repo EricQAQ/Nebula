@@ -16,6 +16,35 @@ const (
 	SideSell = "Sell"
 )
 
+type DepthRecord struct {
+	Symbol string
+	ID     float64
+	Side   string
+	Price  float64
+	Amount float64
+}
+
+type Depth struct {
+	// order: High -> Low
+	Sell []*DepthRecord
+	// order: low -> high
+	Buy []*DepthRecord
+}
+
+type DepthRecordList []*DepthRecord
+
+func (s DepthRecordList) Len() int {
+	return len(s)
+}
+
+func (s DepthRecordList) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s DepthRecordList) Less(i, j int) bool {
+	return s[i].Price < s[j].Price
+}
+
 type Order struct {
 	Symbol       string
 	OrderID      string

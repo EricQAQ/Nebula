@@ -97,3 +97,19 @@ func (bm *Bitmex) HandlePosition(action string, data map[string]interface{}) {
 		}
 	}
 }
+
+func (bm *Bitmex) HandleOrderBookL2_25(action string, data map[string]interface{}) {
+	retList := data["data"].([]interface{})
+	for _, rv := range retList {
+		ret := rv.(map[string]interface{})
+		symbol := ret["symbol"].(string)
+		if action == actionPartial || action == actionInsert {
+			dr := bm.depthData.makeDepthRecord(ret)
+			bm.depthData.insertDepthRecord(symbol, dr)
+		} else if action == actionUpdate {
+			bm.depthData.updateDepthRecord(ret)
+		} else if action == actionDelete {
+			bm.depthData.deleteDepthRecord(ret)
+		}
+	}
+}

@@ -11,7 +11,7 @@ timeout = 1000
     api-secret = ""
     address = ""
     symbols = ["XBTUSD"]
-    topic = ["trade", "quote"]
+    topic = ["trade", "quote", "position", "order", "orderBookL2_25"]
     http-url = ""
 
     [exchange.huobi]

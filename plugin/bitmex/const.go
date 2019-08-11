@@ -15,6 +15,7 @@ var (
 	wsQuoteKeys      = []string{}
 	wsOrderKeys      = []string{"orderID"}
 	wsPositionKeys   = []string{"account", "symbol", "currency"}
+	wsOrderBookKeys  = []string{"symbol", "id", "side"}
 
 	orderStatusMap = map[string]string{
 		"New":             "open",

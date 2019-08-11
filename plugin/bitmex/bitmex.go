@@ -5,8 +5,8 @@ import (
 
 	"github.com/EricQAQ/Traed/config"
 	"github.com/EricQAQ/Traed/core"
-	"github.com/EricQAQ/Traed/model"
 	"github.com/EricQAQ/Traed/kline"
+	"github.com/EricQAQ/Traed/model"
 )
 
 const (
@@ -28,6 +28,7 @@ type Bitmex struct {
 	tradeData    *trade
 	quoteData    *quote
 	orderData    *order
+	depthData    *depth
 	positionData *position
 }
 
@@ -48,6 +49,7 @@ func CreateBitmex(
 	bm.quoteData = newQuote(exchangeConfig.Symbols)
 	bm.orderData = newOrder(exchangeConfig.Symbols)
 	bm.positionData = newPosition(exchangeConfig.Symbols)
+	bm.depthData = newDepth(exchangeConfig.Symbols)
 
 	bm.tickCh = make(chan model.Tick, 1024)
 	return bm

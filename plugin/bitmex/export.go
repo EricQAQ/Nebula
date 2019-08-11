@@ -54,3 +54,9 @@ func (bm *Bitmex) GetPosition(symbol string) ([]*model.Position, bool) {
 	isUpdate := atomic.CompareAndSwapInt32(&bm.positionData.isUpdate, 1, 0)
 	return positionList, isUpdate
 }
+
+func (bm *Bitmex) GetDepth(symbol string) (*model.Depth, bool) {
+	depth := bm.depthData.getDepth(symbol)
+	isUpdate := bm.depthData.isUpdate(symbol)
+	return depth, isUpdate
+}

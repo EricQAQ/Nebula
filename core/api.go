@@ -44,6 +44,7 @@ type ExportAPI interface {
 	GetTrade(symbol string) (*model.Trade, bool)
 	GetOrders(symbol string) ([]*model.Order, bool)
 	GetPosition(symbol string) ([]*model.Position, bool)
+	GetDepth(symbol string) (*model.Depth, bool)
 }
 
 type ExchangeAPI interface {
