@@ -10,6 +10,14 @@
   version = "v0.3.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:53faf22c2ab4215ad55adb586dcac2163cc9870c26fd3b95b9b4b46f9b66ac05"
+  name = "github.com/gocarina/gocsv"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "150c53a64ab6bd394311f5a1073135de17b05234"
+
+[[projects]]
   digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
   name = "github.com/gorilla/websocket"
   packages = ["."]
@@ -130,6 +138,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/BurntSushi/toml",
+    "github.com/gocarina/gocsv",
     "github.com/gorilla/websocket",
     "github.com/juju/errors",
     "github.com/orcaman/concurrent-map",
