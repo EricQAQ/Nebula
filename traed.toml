@@ -4,6 +4,8 @@ k-line-interval = [60, 180, 300, 900, 1800, 3600, 14400, 86400, 604800]
 [http]
 proxy = "http://127.0.0.1:1087"
 timeout = 1000
+retry-count = 5
+retry-interval = 500 # 500ms
 
 [exchange]
     [exchange.bitmex]

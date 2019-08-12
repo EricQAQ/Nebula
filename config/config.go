@@ -27,8 +27,10 @@ type TraedConfig struct {
 }
 
 type HttpConfig struct {
-	Proxy   string `toml:"proxy" json:"proxy"`
-	Timeout int    `toml:"timeout" json:"timeout"`
+	Proxy         string `toml:"proxy" json:"proxy"`
+	Timeout       int    `toml:"timeout" json:"timeout"`
+	RetryCount    int    `toml:"retry-count" json:"retry_count"`
+	RetryInterval int    `toml:"retry-interval" json:"retry_interval"`
 }
 
 type ExchangeConfig struct {
@@ -86,6 +88,8 @@ func GetTraedConfig() *TraedConfig {
 		globalConfig.Http = &HttpConfig{
 			Proxy:   "",
 			Timeout: 1000,
+			RetryCount: 5,
+			RetryInterval: 500,
 		}
 		globalConfig.ExchangeMap = make(map[string]*ExchangeConfig)
 		globalConfig.Websocket = &WebsocketConfig{

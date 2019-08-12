@@ -1,10 +1,11 @@
 package bitmex
 
 import (
-	"strconv"
-	"fmt"
-	"time"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/parnurzeal/gorequest"
 )
@@ -58,9 +59,14 @@ func (bm *Bitmex) sendRequest(
 	method, url string, data map[string]interface{},
 	needAuth bool, expire int64) ([]byte, error) {
 	uri := bm.BaseUrl + url
-	request := gorequest.New().CustomMethod(method, uri)
-	if len(bm.Proxy) > 0 {
-		request = request.Proxy(bm.Proxy)
+	request := gorequest.New().
+		CustomMethod(method, uri).
+		Retry(bm.retryCount, bm.retryInterval,
+			http.StatusBadRequest,
+			http.StatusInternalServerError,
+			http.StatusGatewayTimeout)
+	if len(bm.proxy) > 0 {
+		request = request.Proxy(bm.proxy)
 	}
 	if bm.timeout > 0 {
 		request = request.Timeout(bm.timeout)
@@ -71,9 +77,13 @@ func (bm *Bitmex) sendRequest(
 			return nil, err
 		}
 	}
-	var respBody []byte
-	var errs []error
-	_, respBody, errs = request.Send(data).EndBytes()
+	resp, respBody, errs := request.Send(data).EndBytes()
+	if resp.StatusCode == http.StatusBadRequest ||
+		resp.StatusCode == http.StatusUnauthorized ||
+		resp.StatusCode == http.StatusForbidden ||
+		resp.StatusCode == http.StatusNotFound{
+		return nil, ResponseErr.FastGen(string(respBody))
+	}
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}

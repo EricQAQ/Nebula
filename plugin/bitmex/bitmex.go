@@ -16,8 +16,10 @@ const (
 type Bitmex struct {
 	APIKey    string
 	APISecret string
-	Proxy     string
+	proxy     string
 	timeout   time.Duration
+	retryCount int
+	retryInterval time.Duration
 	BaseUrl   string
 
 	auth      *BitmexAuth
@@ -38,7 +40,9 @@ func CreateBitmex(
 	bm := new(Bitmex)
 	bm.APIKey = exchangeConfig.APIKey
 	bm.APISecret = exchangeConfig.APISecret
-	bm.Proxy = httpConfig.Proxy
+	bm.proxy = httpConfig.Proxy
+	bm.retryCount = httpConfig.RetryCount
+	bm.retryInterval = time.Duration(httpConfig.RetryInterval) * time.Millisecond
 	bm.timeout = time.Duration(httpConfig.Timeout) * time.Millisecond
 	bm.BaseUrl = exchangeConfig.HttpUrl + routeUrl
 	bm.auth = NewBitmexAuth(bm.APIKey, bm.APISecret, 24)
