@@ -88,6 +88,9 @@ func (bm *Bitmex) HandlePosition(action string, data map[string]interface{}) {
 		ret := rv.(map[string]interface{})
 		symbol := ret["symbol"].(string)
 		if action == actionPartial || action == actionInsert {
+			if ret["currentQty"].(float64) == 0 {
+				continue
+			}
 			pos := bm.positionData.makePosition(ret)
 			bm.positionData.insertPosition(symbol, pos)
 		} else if action == actionUpdate {

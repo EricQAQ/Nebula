@@ -19,11 +19,15 @@ func NewEMA(list []*kline.Kline, period int) *EMA {
 }
 
 // Calculation Func
-func (e *EMA) Calculation() *EMA {
+func (e *EMA) Calculation() {
 	for _, v := range e.kline {
 		e.Add(v.Timestamp, v.Close)
 	}
-	return e
+}
+
+func (e *EMA) InsertKline(k *kline.Kline) {
+	e.kline = append(e.kline, k)
+	e.Add(k.Timestamp, k.Close)
 }
 
 // Add adds a new Value to Ema

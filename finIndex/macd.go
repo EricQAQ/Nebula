@@ -44,8 +44,10 @@ func NewMACD(
 }
 
 func (e *MACD) Calculation() *MACD {
-	emaShort := NewEMA(e.kline, e.PeriodShort).Calculation()
-	emaLong := NewEMA(e.kline, e.PeriodLong).Calculation()
+	emaShort := NewEMA(e.kline, e.PeriodShort)
+	emaShort.Calculation()
+	emaLong := NewEMA(e.kline, e.PeriodLong)
+	emaLong.Calculation()
 	//计算DIF
 	for i := 0; i < len(e.kline); i++ {
 		dif := emaShort.Points[i].Value - emaLong.Points[i].Value
@@ -59,7 +61,8 @@ func (e *MACD) Calculation() *MACD {
 		difTempKline = append(
 			difTempKline, &kline.Kline{Timestamp: v.Time, Close: v.DIF})
 	}
-	deaEMA := NewEMA(difTempKline, e.PeriodSignal).Calculation()
+	deaEMA := NewEMA(difTempKline, e.PeriodSignal)
+	deaEMA.Calculation()
 
 	//将DEA并入point，同时计算MACD
 	for i := 0; i < len(e.Points); i++ {

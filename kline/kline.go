@@ -71,7 +71,10 @@ func (km *KlineManager) GetUpdate(interval int) bool {
 func (km *KlineManager) GetKline(interval int) []*Kline {
 	str := strconv.Itoa(interval)
 	data, _ := km.klineMap.Get(str)
-	klines := data.([]*Kline)
+	klines, ok := data.([]*Kline)
+	if !ok {
+		return nil
+	}
 	return klines
 }
 
@@ -94,12 +97,23 @@ func (km *KlineManager) newKline(interval int, tick *model.Tick) *Kline {
 }
 
 func (km *KlineManager) updateKline(interval int, kline *Kline, tick *model.Tick) {
+	isUpdate := false
+	if kline.Close != tick.Close {
+		isUpdate = true
+	} else if kline.High < tick.High {
+		isUpdate = true
+	} else if kline.Low > tick.Low {
+		isUpdate = true
+	}
 	kline.Close = tick.Close
 	kline.High = maxFloat(kline.High, tick.High)
 	kline.Low = minFloat(kline.Low, tick.Low)
 	kline.Vol += tick.Vol
 	str := strconv.Itoa(interval)
-	km.updateMap.Set(str, true)
+	flag, _ := km.updateMap.Get(str)
+	if !flag.(bool) {
+		km.updateMap.Set(str, isUpdate)
+	}
 }
 
 func (km *KlineManager) appendKlines(interval int, klines []*Kline, tick *model.Tick) {

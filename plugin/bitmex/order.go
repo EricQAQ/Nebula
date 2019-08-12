@@ -37,14 +37,28 @@ func (ord *order) makeOrder(data map[string]interface{}) *model.Order {
 	order := new(model.Order)
 	order.Symbol = data["symbol"].(string)
 	order.OrdStatus = data["ordStatus"].(string)
-	order.Price = data["price"].(float64)
-	order.Amount = data["orderQty"].(float32)
-	order.OrdType = data["ordType"].(string)
-	order.Side = data["side"].(string)
-	order.OrderID = data["orderID"].(string)
-	order.ClOrdID = data["clOrdID"].(string)
-	order.AvgPrice = data["avgPx"].(float64)
-	if filledAmount, ok := data["cumQty"].(float32); ok {
+	if value, ok := data["price"]; ok && value != nil {
+		order.Price = value.(float64)
+	}
+	if value, ok := data["orderQty"]; ok && value != nil {
+		order.Amount = value.(float64)
+	}
+	if value, ok := data["orderType"]; ok && value != nil {
+		order.OrdType = value.(string)
+	}
+	if value, ok := data["side"]; ok && value != nil {
+		order.Side = value.(string)
+	}
+	if value, ok := data["orderID"]; ok && value != nil {
+		order.OrderID = value.(string)
+	}
+	if value, ok := data["clOrdID"]; ok && value != nil {
+		order.ClOrdID = value.(string)
+	}
+	if value, ok := data["avgPx"]; ok && value != nil {
+		order.AvgPrice = value.(float64)
+	}
+	if filledAmount, ok := data["cumQty"].(float64); ok {
 		order.FilledAmount = filledAmount
 	} else {
 		order.FilledAmount = 0.0
@@ -89,7 +103,7 @@ func (ord *order) updateOrder(symbol string, data map[string]interface{}) {
 		} else if name == "price" {
 			order.Price = value.(float64)
 		} else if name == "orderQty" {
-			order.Amount = value.(float32)
+			order.Amount = value.(float64)
 		} else if name == "ordType" {
 			order.OrdType = value.(string)
 		} else if name == "side" {
@@ -97,7 +111,7 @@ func (ord *order) updateOrder(symbol string, data map[string]interface{}) {
 		} else if name == "avgPx" {
 			order.AvgPrice = value.(float64)
 		} else if name == "filledAmount" {
-			order.FilledAmount = value.(float32)
+			order.FilledAmount = value.(float64)
 		} else if name == "timestamp" {
 			loc, _ := time.LoadLocation("Asia/Chongqing")
 			ts, _ := time.Parse(time.RFC3339, value.(string))

@@ -52,8 +52,8 @@ type Order struct {
 	OrdType      string
 	Price        float64
 	AvgPrice     float64
-	Amount       float32
-	FilledAmount float32
+	Amount       float64
+	FilledAmount float64
 	Side         string
 	OrdStatus    string
 	Timestamp    time.Time

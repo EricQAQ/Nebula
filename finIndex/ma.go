@@ -5,9 +5,9 @@ import (
 )
 
 type MA struct {
-	Period  int
+	Period int
 	Points []Point
-	kline   []*kline.Kline
+	kline  []*kline.Kline
 }
 
 // NewMA new Func
@@ -16,22 +16,29 @@ func NewMA(value []*kline.Kline, period int) *MA {
 	return m
 }
 
-// Calculation Func
-func (e *MA) Calculation() *MA {
-	for i := 0; i < len(e.kline); i++ {
-		p := Point{}
-		p.Time = e.kline[i].Timestamp
-		if i < e.Period-1 {
-			e.Points = append(e.Points, p)
-			continue
-		}
-		var sum float64
-		for j := 0; j < e.Period; j++ {
+func (e *MA) InsertKline(k *kline.Kline) {
+	e.kline = append(e.kline)
+	e.Calculate(len(e.kline)-1)
+}
 
-			sum += e.kline[i-j].Close
-		}
-		p.Value = +(sum / float64(e.Period))
+func (e *MA) Calculate(index int) {
+	p := Point{}
+	p.Time = e.kline[index].Timestamp
+	if index < e.Period-1 {
 		e.Points = append(e.Points, p)
+		return
 	}
-	return e
+	var sum float64
+	for j := 0; j < e.Period; j++ {
+		sum += e.kline[index-j].Close
+	}
+	p.Value = +(sum / float64(e.Period))
+	e.Points = append(e.Points, p)
+}
+
+// Calculation Func
+func (e *MA) Calculation() {
+	for i := 0; i < len(e.kline); i++ {
+		e.Calculate(i)
+	}
 }

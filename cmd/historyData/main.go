@@ -72,7 +72,7 @@ func getOneMinutePeriodData(
 			return
 		}
 
-		if len(klist) % 60 != 0 {
+		if len(tl) == 0 || len(klist) % 60 != 0 {
 			if err = st.SetKlines(exName, symbol, klist); err != nil {
 				fmt.Println(err.Error())
 			}

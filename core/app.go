@@ -113,7 +113,7 @@ func (app *TraedApp) setupSingalHandler() {
 	}()
 }
 
-func (app *TraedApp) GetKline(exchange, symbol string, interval int) (*kline.Kline, bool) {
+func (app *TraedApp) GetKline(exchange, symbol string, interval int) ([]*kline.Kline, bool) {
 	return app.klineMng[exchange].GetKline(symbol, interval)
 }
 

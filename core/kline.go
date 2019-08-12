@@ -45,17 +45,29 @@ func NewSymbolsKlineManager(
 
 func (skm *SymbolsKlineManager) loadHistoryData(symbol string) error {
 	log.Infof("[Traed Kline(%s)] Start load history k-line", skm.exchange.GetExchangeName())
+	loc, _ := time.LoadLocation("Asia/Chongqing")
 	endTime := time.Now().Truncate(time.Minute)
-	startTime := endTime.AddDate(0, 0, -1)
+	day := endTime.Day()
+	if endTime.Hour() <= 8 {
+		day--
+	}
+	startTime := time.Date(
+		endTime.Year(), endTime.Month(), day, 8, 0, 0, 0, loc)
 	klist, err := skm.store.GetKlines(
 		skm.exchange.GetExchangeName(), symbol, startTime, endTime)
 	if err != nil {
+		log.Infof(
+			"[Traed Kline(%s)] Failed to load history k-line: %s",
+			skm.exchange.GetExchangeName(), err.Error())
 		return LoadHistoryErr.FastGen(err.Error())
 	}
 	km := skm.getKlineManager(symbol)
 	km.SetKline(60, klist)
 
 	for _, i := range skm.intervals {
+		if i == 60 {
+			continue
+		}
 		km.SetKline(i, kline.AggregateKlines(60, i, klist))
 	}
 	log.Infof("[Traed Kline(%s)] Finish load history k-line", skm.exchange.GetExchangeName())
@@ -74,14 +86,17 @@ func (skm *SymbolsKlineManager) update(tick *model.Tick) {
 	}
 }
 
-func (skm *SymbolsKlineManager) GetKline(symbol string, interval int) (*kline.Kline, bool) {
+func (skm *SymbolsKlineManager) GetKline(symbol string, interval int) ([]*kline.Kline, bool) {
 	mng := skm.getKlineManager(symbol)
 	klineList := mng.GetKline(interval)
+	if klineList == nil {
+		return nil, false
+	}
 	length := len(klineList)
 	if length == 0 {
 		return nil, false
 	}
-	return klineList[length-1], mng.GetUpdate(interval)
+	return klineList, mng.GetUpdate(interval)
 }
 
 func (skm *SymbolsKlineManager) startKlineManager() {

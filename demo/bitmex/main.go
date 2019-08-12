@@ -87,13 +87,6 @@ buy_amount:%f, buy_avaiable:%f, buy_price_avg:%f, buy_profit_real:%f`,
 					depth.Buy[len(depth.Buy)-2].Price, depth.Buy[len(depth.Buy)-1].Price,
 					depth.Sell[0].Price, depth.Sell[1].Price, depth.Sell[2].Price,
 					depth.Sell[3].Price, depth.Sell[4].Price)
-					// depth.Sell[len(depth.Buy)-5].Price, depth.Sell[len(depth.Buy)-4].Price, depth.Sell[len(depth.Buy)-3].Price,
-					// depth.Sell[len(depth.Buy)-2].Price, depth.Sell[len(depth.Buy)-1].Price)
-					// "OrderBook Update: Buy:(%f, %f),(%f, %f),(%f, %f),(%f, %f),(%f, %f)   Sell:(%f, %f),(%f, %f),(%f, %f),(%f, %f),(%f, %f)",
-					// depth.Buy[24].Price, depth.Buy[24].Amount, depth.Buy[23].Price, depth.Buy[23].Amount, depth.Buy[22].Price, depth.Buy[22].Amount,
-					// depth.Buy[21].Price, depth.Buy[21].Amount, depth.Buy[20].Price, depth.Buy[20].Amount,
-					// depth.Sell[24].Price, depth.Sell[24].Amount, depth.Sell[23].Price, depth.Sell[23].Amount, depth.Sell[22].Price, depth.Sell[22].Amount,
-					// depth.Sell[21].Price, depth.Sell[21].Amount, depth.Sell[20].Price, depth.Sell[20].Amount)
 			}
 			time.Sleep(time.Duration(500) * time.Millisecond)
 		}

@@ -17,7 +17,7 @@ func (bm *Bitmex) makeAuthHeader(
 	req *gorequest.SuperAgent, method, url string, expireTs int64,
 	data map[string]interface{}) error {
 	sig, err := GenerateSign(
-		bm.APISecret, method, url, expireTs, data)
+		bm.APISecret, method, routeUrl+url, expireTs, data)
 	if err != nil {
 		return err
 	}
@@ -78,14 +78,14 @@ func (bm *Bitmex) sendRequest(
 		}
 	}
 	resp, respBody, errs := request.Send(data).EndBytes()
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
 	if resp.StatusCode == http.StatusBadRequest ||
 		resp.StatusCode == http.StatusUnauthorized ||
 		resp.StatusCode == http.StatusForbidden ||
 		resp.StatusCode == http.StatusNotFound{
 		return nil, ResponseErr.FastGen(string(respBody))
-	}
-	if len(errs) > 0 {
-		return nil, errs[0]
 	}
 	return respBody, nil
 }

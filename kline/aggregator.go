@@ -37,6 +37,9 @@ func AggregateKlines(
 	klist := make([]*Kline, 0, len(sourceKline) / mergeCount)
 
 	for i := 0; i < len(sourceKline); i+=mergeCount {
+		if i+mergeCount >= len(sourceKline) {
+			break
+		}
 		kline := mergeKline(sourceKline[i:i+mergeCount]...)
 		klist = append(klist, kline)
 	}
