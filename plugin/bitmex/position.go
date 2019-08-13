@@ -37,24 +37,44 @@ func (pos *position) makePosition(data map[string]interface{}) *model.Position {
 	p.Symbol = data["symbol"].(string)
 	p.Account = data["account"].(float64)
 	p.Currency = data["currency"].(string)
-	p.LeverRate = data["leverage"].(float64)
-	p.ForceLiquPrice = data["liquidationPrice"].(float64)
-	p.OpenOrderBuyQty = data["openOrderBuyQty"].(float64)
-	p.OpenOrderSellQty = data["openOrderSellQty"].(float64)
+	if value, ok := data["leverage"]; ok && value != nil {
+		p.LeverRate = value.(float64)
+	}
+	if value, ok := data["liquidationPrice"]; ok && value != nil {
+		p.ForceLiquPrice = value.(float64)
+	}
+	if value, ok := data["openOrderBuyQty"]; ok && value != nil {
+		p.OpenOrderBuyQty = value.(float64)
+	}
+	if value, ok := data["openOrderSellQty"]; ok && value != nil {
+		p.OpenOrderSellQty = value.(float64)
+	}
 
 	currQry := data["currentQty"].(float64)
 	if currQry > 0 {
 		// hold long position
 		p.BuyAmount = currQry
-		p.BuyPriceCost = data["avgCostPrice"].(float64)
-		p.BuyPriceAvg = data["avgEntryPrice"].(float64)
-		p.BuyProfitReal = data["unrealisedPnlPcnt"].(float64)
+		if acg, ok := data["avgCostPrice"]; ok && acg != nil {
+			p.BuyPriceCost = acg.(float64)
+		}
+		if aep, ok := data["avgEntryPrice"]; ok && aep != nil {
+			p.BuyPriceAvg = aep.(float64)
+		}
+		if urp, ok := data["unrealisedPnlPcnt"]; ok && urp != nil {
+			p.BuyProfitReal = urp.(float64)
+		}
 		p.BuyAvailable = p.BuyAmount - p.OpenOrderBuyQty
 	} else {
 		p.SellAmount = -currQry
-		p.SellPriceCost = data["avgCostPrice"].(float64)
-		p.SellPriceAvg = data["avgEntryPrice"].(float64)
-		p.SellProfitReal = data["unrealisedPnlPcnt"].(float64)
+		if acg, ok := data["avgCostPrice"]; ok && acg != nil {
+			p.SellPriceCost = acg.(float64)
+		}
+		if aep, ok := data["avgEntryPrice"]; ok && aep != nil {
+			p.SellPriceAvg = aep.(float64)
+		}
+		if urp, ok := data["unrealisedPnlPcnt"]; ok && urp != nil {
+			p.SellProfitReal = urp.(float64)
+		}
 		p.SellAvailable = p.SellAmount - p.OpenOrderSellQty
 	}
 	return p
@@ -90,19 +110,19 @@ func (pos *position) updatePosition(symbol string, data map[string]interface{}) 
 		return
 	}
 
-	if leverage, ok := data["leverage"]; ok {
+	if leverage, ok := data["leverage"]; ok && leverage != nil {
 		position.LeverRate = leverage.(float64)
 	}
-	if liquPrice, ok := data["liquidationPrice"]; ok {
+	if liquPrice, ok := data["liquidationPrice"]; ok && liquPrice != nil {
 		position.ForceLiquPrice = liquPrice.(float64)
 	}
-	if oob, ok := data["openOrderBuyQty"]; ok {
+	if oob, ok := data["openOrderBuyQty"]; ok && oob != nil {
 		position.OpenOrderBuyQty = oob.(float64)
 	}
-	if oos, ok := data["openOrderSellQty"]; ok {
+	if oos, ok := data["openOrderSellQty"]; ok && oos != nil {
 		position.OpenOrderSellQty = oos.(float64)
 	}
-	if currentQty, ok := data["currentQty"]; ok {
+	if currentQty, ok := data["currentQty"]; ok && currentQty != nil {
 		qty := currentQty.(float64)
 		if qty > 0 {
 			position.SellAmount = 0
@@ -111,13 +131,13 @@ func (pos *position) updatePosition(symbol string, data map[string]interface{}) 
 			position.SellProfitReal = 0
 			position.SellAvailable = 0
 			position.BuyAmount = qty
-			if acg, ok := data["avgCostPrice"]; ok {
+			if acg, ok := data["avgCostPrice"]; ok && acg != nil {
 				position.BuyPriceCost = acg.(float64)
 			}
-			if aep, ok := data["avgEntryPrice"]; ok {
+			if aep, ok := data["avgEntryPrice"]; ok && aep != nil {
 				position.BuyPriceAvg = aep.(float64)
 			}
-			if urp, ok := data["unrealisedPnlPcnt"]; ok {
+			if urp, ok := data["unrealisedPnlPcnt"]; ok && urp != nil {
 				position.BuyProfitReal = urp.(float64)
 			}
 			position.BuyAvailable = position.BuyAmount - position.OpenOrderBuyQty
@@ -128,13 +148,13 @@ func (pos *position) updatePosition(symbol string, data map[string]interface{}) 
 			position.BuyProfitReal = 0
 			position.BuyAvailable = 0
 			position.SellAmount = -qty
-			if acg, ok := data["avgCostPrice"]; ok {
+			if acg, ok := data["avgCostPrice"]; ok && acg != nil {
 				position.SellPriceCost = acg.(float64)
 			}
-			if aep, ok := data["avgEntryPrice"]; ok {
+			if aep, ok := data["avgEntryPrice"]; ok && aep != nil {
 				position.SellPriceAvg = aep.(float64)
 			}
-			if urp, ok := data["unrealisedPnlPcnt"]; ok {
+			if urp, ok := data["unrealisedPnlPcnt"]; ok && urp != nil {
 				position.SellProfitReal = urp.(float64)
 			}
 			position.SellAvailable = position.SellAmount - position.OpenOrderSellQty
