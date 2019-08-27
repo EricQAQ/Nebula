@@ -42,10 +42,16 @@ func strategy(app *core.NebulaApp) {
 				ema.Points[emaLen-1].Value > ma.Points[maLen-1].Value {
 				depth, _ := bm.GetDepth("XBTUSD")
 				_, err := bm.LimitBuy("XBTUSD", depth.Buy[len(depth.Buy)-1].Price, 10)
+				if err != nil {
+					log.Warnf("Buy failed: %s", err.Error())
+				}
 			} else if ema.Points[emaLen-2].Value > ma.Points[maLen-2].Value &&
 				ema.Points[emaLen-1].Value < ma.Points[maLen-1].Value {
 				depth, _ := bm.GetDepth("XBTUSD")
 				_, err := bm.LimitSell("XBTUSD", depth.Sell[0].Price, 10)
+				if err != nil {
+					log.Warnf("Sell failed: %s", err.Error())
+				}
 			}
 		}
 		time.Sleep(100 * time.Millisecond)
