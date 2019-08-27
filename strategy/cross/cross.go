@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/EricQAQ/Traed/core"
-	"github.com/EricQAQ/Traed/finIndex"
-	"github.com/EricQAQ/Traed/plugin/bitmex"
+	"github.com/EricQAQ/Nebula/core"
+	"github.com/EricQAQ/Nebula/finIndex"
+	"github.com/EricQAQ/Nebula/plugin/bitmex"
 )
 
-func createApp() *core.TraedApp {
-	app := core.NewTraedApp("bin/traed.toml")
+func createApp() *core.NebulaApp {
+	app := core.NewNebulaApp("bin/nebula.toml")
 	bxCfg := app.Cfg.ExchangeMap["bitmex"]
 	bm := bitmex.CreateBitmex(bxCfg, app.Cfg.Http)
 	app.SetExchange("bitmex", bm)
 	return app
 }
 
-func strategy(app *core.TraedApp) {
+func strategy(app *core.NebulaApp) {
 	klines, _ := app.GetKline("bitmex", "XBTUSD", 60)
 	ma := fin.NewMA(klines, 99)
 	ema := fin.NewEMA(klines, 17)

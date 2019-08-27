@@ -5,8 +5,8 @@ import (
 	"flag"
 	"time"
 
-	"github.com/EricQAQ/Traed/core"
-	"github.com/EricQAQ/Traed/plugin/bitmex"
+	"github.com/EricQAQ/Nebula/core"
+	"github.com/EricQAQ/Nebula/plugin/bitmex"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -15,12 +15,12 @@ func main() {
 	var (
 		configPath = flag.String("config", "", "config file path")
 
-		app *core.TraedApp
+		app *core.NebulaApp
 		err error
 	)
 	flag.Parse()
 
-	app = core.NewTraedApp(*configPath)
+	app = core.NewNebulaApp(*configPath)
 	bxCfg := app.Cfg.ExchangeMap["bitmex"]
 	bm := bitmex.CreateBitmex(bxCfg, app.Cfg.Http)
 	app.SetExchange("bitmex", bm)
@@ -61,8 +61,8 @@ func main() {
 		for {
 			for _, interval := range app.Cfg.KlineInterval {
 				klist, isUpdate := app.GetKline("bitmex", "XBTUSD", interval)
-				kline := klist[len(klist)-1]
 				if isUpdate {
+					kline := klist[len(klist)-1]
 					log.Infof(
 						"K line %d, symbol:%s, open:%f, close:%f, high:%f, low:%f, vol:%f, time:%s",
 						interval, kline.Symbol, kline.Open, kline.Close, kline.High, kline.Low, kline.Vol, kline.Timestamp)

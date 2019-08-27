@@ -3,7 +3,7 @@ package fin
 import (
 	"time"
 
-	"github.com/EricQAQ/Traed/kline"
+	"github.com/EricQAQ/Nebula/kline"
 )
 
 type EMA struct {

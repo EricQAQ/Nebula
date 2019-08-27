@@ -4,7 +4,7 @@ import (
 	"time"
 	"math"
 
-	"github.com/EricQAQ/Traed/kline"
+	"github.com/EricQAQ/Nebula/kline"
 )
 
 // 日BOLL指标的计算公式

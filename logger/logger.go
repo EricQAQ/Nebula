@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/EricQAQ/Traed/config"
+	"github.com/EricQAQ/Nebula/config"
 )
 
 const (
@@ -56,7 +56,7 @@ func logTypeToColor(level log.Level) string {
 	return "[0;37"
 }
 
-type traedLoggerFormatter struct {
+type nebulaLoggerFormatter struct {
 	EnableColors  bool
 	EnableSorting bool
 }
@@ -64,7 +64,7 @@ type traedLoggerFormatter struct {
 // Format implements logrus.Formatter
 // 2018-11-03 13:35:59.666 ~/this_is_a_fake_proj/xxx.go:67 [INFO] @@ this is the log format. field_1=eric field_2=zhang
 // |------timestamp------| |----------file:line----------| [level]   |-------message-------| |---field, value pairs---|
-func (lf *traedLoggerFormatter) Format(entry *log.Entry) ([]byte, error) {
+func (lf *nebulaLoggerFormatter) Format(entry *log.Entry) ([]byte, error) {
 	var b *bytes.Buffer
 	if entry.Buffer != nil {
 		b = entry.Buffer
@@ -104,7 +104,7 @@ func (lf *traedLoggerFormatter) Format(entry *log.Entry) ([]byte, error) {
 func createLoggerFormatter(format string) log.Formatter {
 	switch strings.ToLower(format) {
 	case "text":
-		return &traedLoggerFormatter{}
+		return &nebulaLoggerFormatter{}
 	case "json":
 		return &log.JSONFormatter{
 			TimestampFormat: defaultLogTimeFormat,
@@ -115,11 +115,11 @@ func createLoggerFormatter(format string) log.Formatter {
 			TimestampFormat: defaultLogTimeFormat,
 		}
 	case "highlight":
-		return &traedLoggerFormatter{
+		return &nebulaLoggerFormatter{
 			EnableColors: true,
 		}
 	default:
-		return &traedLoggerFormatter{}
+		return &nebulaLoggerFormatter{}
 	}
 }
 
@@ -148,7 +148,7 @@ func initFileLog(cfg *config.LogConfig) error {
 	return nil
 }
 
-func CreateLoggerFromConfig(cfg *config.TraedConfig) error {
+func CreateLoggerFromConfig(cfg *config.NebulaConfig) error {
 	logCfg := cfg.Log
 	log.SetLevel(stringToLogLevel(logCfg.Level))
 

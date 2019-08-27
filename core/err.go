@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/EricQAQ/Traed/err"
+	"github.com/EricQAQ/Nebula/err"
 )
 
 const (
@@ -12,12 +12,12 @@ const (
 )
 
 var (
-	RetryMaxErr = err.CreateTraedError(
+	RetryMaxErr = err.CreateNebulaError(
 		RetryMaxErrCode, "Reach the maximum number of retries", nil)
-	ExchangeNotExistErr = err.CreateTraedError(
+	ExchangeNotExistErr = err.CreateNebulaError(
 		ExchangeNotExistErrCode, "Callback not exist: %s", nil)
-	CreateWsErr = err.CreateTraedError(
+	CreateWsErr = err.CreateNebulaError(
 		CreateWsErrCode, "Create websocket client failed: exchange: %s, %s", nil)
-	LoadHistoryErr = err.CreateTraedError(
+	LoadHistoryErr = err.CreateNebulaError(
 		LoadHistoryErrCode, "Load history klines failed: %s", nil)
 )

@@ -1,7 +1,7 @@
 package bitmex
 
 import (
-	"github.com/EricQAQ/Traed/err"
+	"github.com/EricQAQ/Nebula/err"
 )
 
 const (
@@ -10,9 +10,9 @@ const (
 )
 
 var (
-	SymbolErr = err.CreateTraedError(
+	SymbolErr = err.CreateNebulaError(
 		SymbolErrCode, "Symbol not subscribe in Bitmex.", nil)
-	ResponseErr = err.CreateTraedError(
+	ResponseErr = err.CreateNebulaError(
 		ResponseErrCode, "%s", nil)
 )
 

@@ -6,11 +6,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/EricQAQ/Traed/config"
-	"github.com/EricQAQ/Traed/kline"
-	"github.com/EricQAQ/Traed/logger"
-	"github.com/EricQAQ/Traed/storage"
-	"github.com/EricQAQ/Traed/storage/csv"
+	"github.com/EricQAQ/Nebula/config"
+	"github.com/EricQAQ/Nebula/kline"
+	"github.com/EricQAQ/Nebula/logger"
+	"github.com/EricQAQ/Nebula/storage"
+	"github.com/EricQAQ/Nebula/storage/csv"
 
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
@@ -30,8 +30,8 @@ func printInfo() {
 	log.SetLevel(level)
 }
 
-func LoadConfig(configPath string) *config.TraedConfig {
-	cfg := config.GetTraedConfig()
+func LoadConfig(configPath string) *config.NebulaConfig {
+	cfg := config.GetNebulaConfig()
 	if configPath != "" {
 		if err := cfg.LoadFromToml(configPath); err != nil {
 			log.Fatalf(errors.ErrorStack(err))
@@ -40,26 +40,26 @@ func LoadConfig(configPath string) *config.TraedConfig {
 	return cfg
 }
 
-func SetupLog(cfg *config.TraedConfig) {
+func SetupLog(cfg *config.NebulaConfig) {
 	err := logger.CreateLoggerFromConfig(cfg)
 	if err != nil {
 		log.Fatalf(errors.ErrorStack(err))
 	}
 }
 
-type TraedApp struct {
-	Cfg      *config.TraedConfig
+type NebulaApp struct {
+	Cfg      *config.NebulaConfig
 	Exchange map[string]ExchangeAPI
 	wsMap    map[string]*WsClient
 	klineMng map[string]*SymbolsKlineManager
 	store    storage.StorageAPI
 }
 
-func NewTraedApp(cfgPath string) *TraedApp {
+func NewNebulaApp(cfgPath string) *NebulaApp {
 	cfg := LoadConfig(cfgPath)
 	SetupLog(cfg)
 
-	app := new(TraedApp)
+	app := new(NebulaApp)
 	app.Cfg = cfg
 	app.Exchange = make(map[string]ExchangeAPI)
 	app.wsMap = make(map[string]*WsClient)
@@ -68,14 +68,14 @@ func NewTraedApp(cfgPath string) *TraedApp {
 	return app
 }
 
-func (app *TraedApp) setStorage() {
+func (app *NebulaApp) setStorage() {
 	switch app.Cfg.Storage.StorageType {
 	case "csv":
 		app.store = csv.NewCsvStorage(app.Cfg.Storage.Csv.DataDir)
 	}
 }
 
-func (app *TraedApp) SetExchange(exchangeName string, exchange ExchangeAPI) error {
+func (app *NebulaApp) SetExchange(exchangeName string, exchange ExchangeAPI) error {
 	_, ok := app.Cfg.ExchangeMap[exchangeName]
 	if !ok {
 		return ExchangeNotExistErr.FastGen(exchangeName)
@@ -84,7 +84,7 @@ func (app *TraedApp) SetExchange(exchangeName string, exchange ExchangeAPI) erro
 	return nil
 }
 
-func (app *TraedApp) CreateWsClient() error {
+func (app *NebulaApp) CreateWsClient() error {
 	for name, exchange := range app.Exchange {
 		exCfg := app.Cfg.ExchangeMap[name]
 		worker := NewWorker(shutdownCtx, name, exchange)
@@ -99,7 +99,7 @@ func (app *TraedApp) CreateWsClient() error {
 	return nil
 }
 
-func (app *TraedApp) setupSingalHandler() {
+func (app *NebulaApp) setupSingalHandler() {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(
 		signalChan,
@@ -113,11 +113,11 @@ func (app *TraedApp) setupSingalHandler() {
 	}()
 }
 
-func (app *TraedApp) GetKline(exchange, symbol string, interval int) ([]*kline.Kline, bool) {
+func (app *NebulaApp) GetKline(exchange, symbol string, interval int) ([]*kline.Kline, bool) {
 	return app.klineMng[exchange].GetKline(symbol, interval)
 }
 
-func (app *TraedApp) Start() error {
+func (app *NebulaApp) Start() error {
 	app.setupSingalHandler()
 	printInfo()
 	for name, _ := range app.Exchange {
@@ -137,20 +137,20 @@ func (app *TraedApp) Start() error {
 	for _, mng := range app.klineMng {
 		mng.Start()
 	}
-	log.Infof("[April] Start April App.")
+	log.Infof("[Nebula] Start Nebula App.")
 	return nil
 }
 
-func (app *TraedApp) Stop() {
+func (app *NebulaApp) Stop() {
 	for _, ws := range app.wsMap {
 		ws.StopClient()
 	}
 	for _, mng := range app.klineMng {
 		mng.Stop()
 	}
-	log.Infof("[April] Stop April App.")
+	log.Infof("[Nebula] Stop Nebula App.")
 }
 
-func (app *TraedApp) Shutdown() {
+func (app *NebulaApp) Shutdown() {
 	cancel()
 }

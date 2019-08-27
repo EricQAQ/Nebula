@@ -3,7 +3,7 @@ package bitmex
 import (
 	"time"
 
-	"github.com/EricQAQ/Traed/kline"
+	"github.com/EricQAQ/Nebula/kline"
 )
 
 func (bm *Bitmex) makeHistoryKlineList(data []map[string]interface{}) interface{} {

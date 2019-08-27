@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/EricQAQ/Traed/kline"
-	"github.com/EricQAQ/Traed/model"
-	"github.com/EricQAQ/Traed/storage"
+	"github.com/EricQAQ/Nebula/kline"
+	"github.com/EricQAQ/Nebula/model"
+	"github.com/EricQAQ/Nebula/storage"
 
 	"github.com/orcaman/concurrent-map"
 	log "github.com/sirupsen/logrus"
@@ -44,7 +44,7 @@ func NewSymbolsKlineManager(
 }
 
 func (skm *SymbolsKlineManager) loadHistoryData(symbol string) error {
-	log.Infof("[Traed Kline(%s)] Start load history k-line", skm.exchange.GetExchangeName())
+	log.Infof("[Nebula Kline(%s)] Start load history k-line", skm.exchange.GetExchangeName())
 	loc, _ := time.LoadLocation("Asia/Chongqing")
 	endTime := time.Now().Truncate(time.Minute)
 	day := endTime.Day()
@@ -56,8 +56,8 @@ func (skm *SymbolsKlineManager) loadHistoryData(symbol string) error {
 	klist, err := skm.store.GetKlines(
 		skm.exchange.GetExchangeName(), symbol, startTime, endTime)
 	if err != nil {
-		log.Infof(
-			"[Traed Kline(%s)] Failed to load history k-line: %s",
+		log.Warnf(
+			"[Nebula Kline(%s)] Failed to load history k-line: %s",
 			skm.exchange.GetExchangeName(), err.Error())
 		return LoadHistoryErr.FastGen(err.Error())
 	}
@@ -70,7 +70,7 @@ func (skm *SymbolsKlineManager) loadHistoryData(symbol string) error {
 		}
 		km.SetKline(i, kline.AggregateKlines(60, i, klist))
 	}
-	log.Infof("[Traed Kline(%s)] Finish load history k-line", skm.exchange.GetExchangeName())
+	log.Infof("[Nebula Kline(%s)] Finish load history k-line", skm.exchange.GetExchangeName())
 	return nil
 }
 

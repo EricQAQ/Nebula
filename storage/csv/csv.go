@@ -6,7 +6,7 @@ import (
 	"time"
 	"os"
 
-	"github.com/EricQAQ/Traed/kline"
+	"github.com/EricQAQ/Nebula/kline"
 	"github.com/gocarina/gocsv"
 )
 

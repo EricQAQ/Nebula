@@ -6,7 +6,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/EricQAQ/Traed/core"
+	"github.com/EricQAQ/Nebula/core"
 )
 
 // There are four possible actions from the WS:

@@ -23,8 +23,8 @@ func NewWorker(ctx context.Context, exchange string,
 	return w
 }
 
-func (w *Worker) StartWorker(app *TraedApp) {
-	log.Infof("[Traed Worker(%s)] start.", w.exchange)
+func (w *Worker) StartWorker(app *NebulaApp) {
+	log.Infof("[Nebula Worker(%s)] start.", w.exchange)
 	for {
 		select {
 		case <-w.ctx.Done():
@@ -40,6 +40,6 @@ func (w *Worker) StartWorker(app *TraedApp) {
 
 func (w *Worker) StopWorker() {
 	close(w.workerCh)
-	log.Infof("[Traed Worker(%s)] stop.", w.exchange)
+	log.Infof("[Nebula Worker(%s)] stop.", w.exchange)
 }
 

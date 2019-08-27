@@ -3,7 +3,7 @@ package storage
 import (
 	"time"
 
-	"github.com/EricQAQ/Traed/kline"
+	"github.com/EricQAQ/Nebula/kline"
 )
 
 type StorageAPI interface {

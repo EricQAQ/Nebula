@@ -5,7 +5,7 @@ import (
 
 	"github.com/orcaman/concurrent-map"
 
-	"github.com/EricQAQ/Traed/model"
+	"github.com/EricQAQ/Nebula/model"
 )
 
 type position struct {

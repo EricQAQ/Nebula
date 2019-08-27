@@ -3,7 +3,7 @@ package config
 import (
 	"sync"
 
-	"github.com/EricQAQ/Traed/err"
+	"github.com/EricQAQ/Nebula/err"
 
 	"github.com/BurntSushi/toml"
 	"github.com/juju/errors"
@@ -13,9 +13,9 @@ const (
 	ConfigErrCode = 1001
 )
 
-var ConfigErr = err.CreateTraedError(ConfigErrCode, "Invalid config: %s", nil)
+var ConfigErr = err.CreateNebulaError(ConfigErrCode, "Invalid config: %s", nil)
 
-type TraedConfig struct {
+type NebulaConfig struct {
 	KlineInterval []int                      `toml:"k-line-interval" json:"k_line_interval"`
 	Http          *HttpConfig                `toml:"http" json:"http"`
 	ExchangeMap   map[string]*ExchangeConfig `toml:"exchange" json:"exchange"`
@@ -77,12 +77,12 @@ type LogConfig struct {
 
 var (
 	once         sync.Once
-	globalConfig *TraedConfig
+	globalConfig *NebulaConfig
 )
 
-func GetTraedConfig() *TraedConfig {
+func GetNebulaConfig() *NebulaConfig {
 	once.Do(func() {
-		globalConfig = new(TraedConfig)
+		globalConfig = new(NebulaConfig)
 		globalConfig.KlineInterval = []int{
 			60, 180, 300, 900, 1800, 3600, 14400, 86400, 604800}
 		globalConfig.Http = &HttpConfig{
@@ -110,7 +110,7 @@ func GetTraedConfig() *TraedConfig {
 	return globalConfig
 }
 
-func (c *TraedConfig) LoadFromToml(configFile string) error {
+func (c *NebulaConfig) LoadFromToml(configFile string) error {
 	_, err := toml.DecodeFile(configFile, c)
 	if len(c.ExchangeMap) <= 0 {
 		return ConfigErr.FastGen("account")

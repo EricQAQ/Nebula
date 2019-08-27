@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/EricQAQ/Traed/config"
+	"github.com/EricQAQ/Nebula/config"
 
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
@@ -73,7 +73,7 @@ func (ws *WsClient) retryReconnect() error {
 	for retryCount > 0 {
 		if err = ws.connect(true); err != nil {
 			retryCount--
-			log.Errorf("[Traed WsClient(%s)] failed to reconnect: %s", ws.exchangeName, err.Error())
+			log.Errorf("[Nebula WsClient(%s)] failed to reconnect: %s", ws.exchangeName, err.Error())
 			time.Sleep(time.Second * 1)
 		} else {
 			return nil
@@ -105,16 +105,16 @@ func (ws *WsClient) ReadMsg() error {
 			ws.Conn.SetReadDeadline(time.Now().Add(ws.ReadWait))
 			_, msg, err := ws.Conn.ReadMessage()
 			if err != nil {
-				log.Warnf("[Traed WsClient(%s)] receive message error: %s, reconnect.", ws.exchangeName, err.Error())
+				log.Warnf("[Nebula WsClient(%s)] receive message error: %s, reconnect.", ws.exchangeName, err.Error())
 				if err = ws.retryReconnect(); err != nil {
-					log.Errorf("[Traed WsClient(%s)] reconnect failed: %s", ws.exchangeName, err.Error())
+					log.Errorf("[Nebula WsClient(%s)] reconnect failed: %s", ws.exchangeName, err.Error())
 					return err
 				}
 				continue
 			}
 			data, err := ws.exchange.Parse(msg)
 			if err != nil {
-				log.Errorf("[Traed WsClient(%s)] parse data error: %s", ws.exchangeName, err.Error())
+				log.Errorf("[Nebula WsClient(%s)] parse data error: %s", ws.exchangeName, err.Error())
 				continue
 			}
 			if data.Data == nil {
@@ -125,7 +125,7 @@ func (ws *WsClient) ReadMsg() error {
 	}
 }
 
-func (ws *WsClient) StartClient(app *TraedApp) {
+func (ws *WsClient) StartClient(app *NebulaApp) {
 	ws.wg.Add(1)
 	go func() {
 		defer ws.wg.Done()
@@ -144,12 +144,12 @@ func (ws *WsClient) StartClient(app *TraedApp) {
 		ws.ReadMsg()
 	}()
 
-	log.Infof("[Traed WsClient(%s)] start.", ws.exchangeName)
+	log.Infof("[Nebula WsClient(%s)] start.", ws.exchangeName)
 }
 
 func (ws *WsClient) StopClient() {
 	ws.wg.Wait()
 	ws.Conn.Close()
 	ws.worker.StopWorker()
-	log.Infof("[Traed WsClient(%s)] stop.", ws.exchangeName)
+	log.Infof("[Nebula WsClient(%s)] stop.", ws.exchangeName)
 }

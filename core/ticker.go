@@ -26,7 +26,7 @@ func (ticker *ticker) heartBeat() error {
 		time.Now().Add(ticker.wsClient.WriteWait))
 	err := ticker.wsClient.Conn.WriteMessage(websocket.PingMessage, []byte{})
 	if err != nil {
-		log.Errorf("[April Ticker] send hearbeat failed. %s", err.Error())
+		log.Errorf("[Nebula Ticker] send hearbeat failed. %s", err.Error())
 		return err
 	}
 	return nil

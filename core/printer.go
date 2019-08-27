@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/EricQAQ/Traed/config"
+	"github.com/EricQAQ/Nebula/config"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -27,10 +27,10 @@ func PrintLogo() {
 }
 
 func PrintInfo() {
-	log.Infof("Welcome to Traed.")
+	log.Infof("Welcome to Nebula.")
 	log.Infof("Release Version: %s %s %s.", VERSION, runtime.GOOS, runtime.GOARCH)
 	log.Infof("GoVersion: %s.", runtime.Version())
-	configJSON, err := json.MarshalIndent(config.GetTraedConfig(), "", "    ")
+	configJSON, err := json.MarshalIndent(config.GetNebulaConfig(), "", "    ")
 	if err != nil {
 		panic(err)
 	}

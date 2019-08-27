@@ -3,7 +3,7 @@ package bitmex
 import (
 	"sort"
 
-	"github.com/EricQAQ/Traed/model"
+	"github.com/EricQAQ/Nebula/model"
 	"github.com/orcaman/concurrent-map"
 )
 

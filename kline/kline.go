@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/EricQAQ/Traed/model"
+	"github.com/EricQAQ/Nebula/model"
 
 	"github.com/orcaman/concurrent-map"
 )

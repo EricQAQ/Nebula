@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/EricQAQ/Traed/core"
-	"github.com/EricQAQ/Traed/kline"
-	"github.com/EricQAQ/Traed/plugin/bitmex"
-	"github.com/EricQAQ/Traed/storage/csv"
-	"github.com/EricQAQ/Traed/storage"
+	"github.com/EricQAQ/Nebula/core"
+	"github.com/EricQAQ/Nebula/kline"
+	"github.com/EricQAQ/Nebula/plugin/bitmex"
+	"github.com/EricQAQ/Nebula/storage/csv"
+	"github.com/EricQAQ/Nebula/storage"
 )
 
 const (

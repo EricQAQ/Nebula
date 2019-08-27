@@ -3,8 +3,8 @@ package core
 import (
 	"time"
 
-	"github.com/EricQAQ/Traed/model"
-	"github.com/EricQAQ/Traed/kline"
+	"github.com/EricQAQ/Nebula/model"
+	"github.com/EricQAQ/Nebula/kline"
 )
 
 const (

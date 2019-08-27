@@ -3,10 +3,10 @@ package bitmex
 import (
 	"time"
 
-	"github.com/EricQAQ/Traed/config"
-	"github.com/EricQAQ/Traed/core"
-	"github.com/EricQAQ/Traed/kline"
-	"github.com/EricQAQ/Traed/model"
+	"github.com/EricQAQ/Nebula/config"
+	"github.com/EricQAQ/Nebula/core"
+	"github.com/EricQAQ/Nebula/kline"
+	"github.com/EricQAQ/Nebula/model"
 )
 
 const (

@@ -1,7 +1,7 @@
 package fin
 
 import (
-	"github.com/EricQAQ/Traed/kline"
+	"github.com/EricQAQ/Nebula/kline"
 )
 
 type MA struct {

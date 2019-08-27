@@ -7,7 +7,7 @@ import (
 )
 
 func (ws *WsClient) Auth() error {
-	log.Infof("[Traed WsClient(%s)] Authenticate.", ws.exchangeName)
+	log.Infof("[Nebula WsClient(%s)] Authenticate.", ws.exchangeName)
 	au := ws.exchange.GetWsAuthHandler()
 	data, err := au.Serialize()
 	if err != nil {
@@ -19,7 +19,7 @@ func (ws *WsClient) Auth() error {
 func (ws *WsClient) Subscribe() error {
 	sub := ws.exchange.GetWsSubscribeHandler()
 	log.Infof(
-		"[Traed WsClient(%s)] Subscribe: %s",
+		"[Nebula WsClient(%s)] Subscribe: %s",
 		ws.exchangeName,
 		strings.Join(sub.GetOperateArgs(), ","))
 	data, err := sub.Serialize()

@@ -3,7 +3,7 @@ package bitmex
 import (
 	"sync/atomic"
 
-	"github.com/EricQAQ/Traed/model"
+	"github.com/EricQAQ/Nebula/model"
 )
 
 func (bm *Bitmex) GetTick(symbol string) (*model.Tick, bool) {
