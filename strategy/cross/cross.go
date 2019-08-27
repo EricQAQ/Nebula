@@ -2,12 +2,13 @@ package main
 
 import (
 	"os"
-	"fmt"
 	"time"
 
 	"github.com/EricQAQ/Nebula/core"
 	"github.com/EricQAQ/Nebula/finIndex"
 	"github.com/EricQAQ/Nebula/plugin/bitmex"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func createApp() *core.NebulaApp {
@@ -32,23 +33,19 @@ func strategy(app *core.NebulaApp) {
 			ema.InsertKline(klines[len(klines)-1])
 			maLen := len(ma.Points)
 			emaLen := len(ema.Points)
-			fmt.Printf(
+			log.Debugf(
 				"(ema, ma): (%f, %f), (%f, %f)\n",
 				ema.Points[emaLen-2].Value, ma.Points[maLen-2].Value,
 				ema.Points[emaLen-1].Value, ma.Points[maLen-1].Value)
 
 			if ema.Points[emaLen-2].Value < ma.Points[maLen-2].Value &&
 				ema.Points[emaLen-1].Value > ma.Points[maLen-1].Value {
-				fmt.Println("Buy!!")
 				depth, _ := bm.GetDepth("XBTUSD")
 				_, err := bm.LimitBuy("XBTUSD", depth.Buy[len(depth.Buy)-1].Price, 10)
-				fmt.Println("Buy!! %v", err)
 			} else if ema.Points[emaLen-2].Value > ma.Points[maLen-2].Value &&
 				ema.Points[emaLen-1].Value < ma.Points[maLen-1].Value {
-				fmt.Println("Sell!!")
 				depth, _ := bm.GetDepth("XBTUSD")
 				_, err := bm.LimitSell("XBTUSD", depth.Sell[0].Price, 10)
-				fmt.Println("Sell!! %v", err)
 			}
 		}
 		time.Sleep(100 * time.Millisecond)
