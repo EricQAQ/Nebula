@@ -1,0 +1,26 @@
+# github.com/BurntSushi/toml v0.3.1
+github.com/BurntSushi/toml
+# github.com/gocarina/gocsv v0.0.0-20190802110148-150c53a64ab6
+github.com/gocarina/gocsv
+# github.com/gorilla/websocket v1.4.0
+github.com/gorilla/websocket
+# github.com/juju/errors v0.0.0-20190207033735-e65537c515d7
+github.com/juju/errors
+# github.com/konsorten/go-windows-terminal-sequences v1.0.2
+github.com/konsorten/go-windows-terminal-sequences
+# github.com/moul/http2curl v1.0.0
+github.com/moul/http2curl
+# github.com/orcaman/concurrent-map v0.0.0-20190314100340-2693aad1ed75
+github.com/orcaman/concurrent-map
+# github.com/parnurzeal/gorequest v0.2.15
+github.com/parnurzeal/gorequest
+# github.com/pkg/errors v0.8.1
+github.com/pkg/errors
+# github.com/sirupsen/logrus v1.4.2
+github.com/sirupsen/logrus
+# golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+golang.org/x/net/publicsuffix
+# golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa
+golang.org/x/sys/unix
+# gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
+gopkg.in/natefinch/lumberjack.v2
